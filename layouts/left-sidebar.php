@@ -60,22 +60,44 @@
           aria-controls="sidebarDashboards"
           class="side-nav-link">
           <i class="ri-home-4-line"></i>
-          <span class="badge bg-success float-end">2</span>
+          <!-- <span class="badge bg-success float-end">2</span> -->
           <span> Dashboards </span>
         </a>
         <div class="collapse" id="sidebarDashboards">
           <ul class="side-nav-second-level">
-            <li>
+            <!-- <li>
               <a href="dashboard-analytics.php">Analytics</a>
-            </li>
+            </li> -->
             <li>
-              <a href="index.php">Ecommerce</a>
+              <a href="index.php">Admin Dashboard</a>
             </li>
           </ul>
         </div>
       </li>
 
-      <li class="side-nav-title">Apps</li>
+      <li class="side-nav-item">
+        <a
+          data-bs-toggle="collapse"
+          href="#sidebarNationality"
+          aria-expanded="false"
+          aria-controls="sidebarNationality"
+          class="side-nav-link">
+          <i class="ri-flag-line"></i>
+          <span> Nationality </span>
+          <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="sidebarNationality">
+          <ul class="side-nav-second-level">
+            <li>
+              <a href="manage-nationality.php">Add Nationality</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+
+
+      <!-- <li class="side-nav-title">Apps</li>
 
       <li class="side-nav-item">
         <a href="apps-calendar.php" class="side-nav-link">
@@ -89,9 +111,9 @@
           <i class="ri-message-3-line"></i>
           <span> Chat </span>
         </a>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarEmail"
@@ -112,9 +134,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarTasks"
@@ -135,9 +157,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a href="apps-kanban.php" class="side-nav-link">
           <i class="ri-list-check-3"></i>
           <span> Kanban Board </span>
@@ -149,9 +171,9 @@
           <i class="ri-folder-2-line"></i>
           <span> File Manager </span>
         </a>
-      </li>
+      </li> -->
 
-      <li class="side-nav-title">Custom</li>
+      <!-- <li class="side-nav-title">Custom</li>
 
       <li class="side-nav-item">
         <a
@@ -192,9 +214,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarPagesAuth"
@@ -245,9 +267,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarPagesError"
@@ -271,9 +293,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarLayouts"
@@ -309,9 +331,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-title">Components</li>
+      <!-- <li class="side-nav-title">Components</li>
 
       <li class="side-nav-item">
         <a
@@ -406,9 +428,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarExtendedUI"
@@ -438,16 +460,16 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a href="widgets.php" class="side-nav-link">
           <i class="ri-pencil-ruler-2-line"></i>
           <span> Widgets </span>
         </a>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarIcons"
@@ -468,9 +490,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarCharts"
@@ -576,9 +598,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarForms"
@@ -657,9 +679,9 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
 
-      <li class="side-nav-item">
+      <!-- <li class="side-nav-item">
         <a
           data-bs-toggle="collapse"
           href="#sidebarMultiLevel"
@@ -731,7 +753,7 @@
             </li>
           </ul>
         </div>
-      </li>
+      </li> -->
     </ul>
     <!--- End Sidemenu -->
 
