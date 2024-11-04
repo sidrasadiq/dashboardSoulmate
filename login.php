@@ -18,7 +18,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
         // Prepare the SQL statement
-        $stmt = mysqli_prepare($conn, "SELECT id, first_name, last_name, username, password_hash, role_id FROM users WHERE email = ?");
+        $stmt = mysqli_prepare($conn, "SELECT id, username, password, role_id FROM users WHERE email = ?");
         if ($stmt === false) {
             throw new Exception("Prepare statement failed: " . mysqli_error($conn));
         }
@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         mysqli_stmt_execute($stmt);
 
         // Bind the result
-        mysqli_stmt_bind_result($stmt, $id, $first_name, $last_name, $username, $hashed_password, $role);
+        mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password, $role);
 
         // Fetch the result
         if (mysqli_stmt_fetch($stmt)) {
@@ -40,8 +40,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 // Store data in session variables
                 $_SESSION["loggedin"] = true;
                 $_SESSION["user_id"] = $id;
-                $_SESSION["first_name"] = $first_name;
-                $_SESSION["last_name"] = $last_name;
+                // $_SESSION["first_name"] = $first_name;
+                // $_SESSION["last_name"] = $last_name;
                 $_SESSION["username"] = $username;
                 $_SESSION["role_id"] = $role;
                 $_SESSION["email"] = $email;
@@ -69,9 +69,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($stmt)) {
             mysqli_stmt_close($stmt);
         }
-        if (isset($conn)) {
-            mysqli_close($conn);
-        }
+        // if (isset($conn)) {
+        //     mysqli_close($conn);
+        // }
     }
 }
 ?>
@@ -241,7 +241,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <!-- Form Section -->
             <div class="form-section ">
-                <form class="login-form">
+                <?php displaySessionMessage(); ?>
+                <form class="login-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                     <h2 class="text-center mb-4">Members Log In</h2>
                     <div class="input-group mt-5">
                         <input type="email" name="email" class="form-control" placeholder="Your Email Address" required>
