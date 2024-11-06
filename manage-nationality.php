@@ -54,7 +54,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnSaveNationality"]))
 
         // Bind parameters to prevent SQL injection
         $stmt->bind_param(
-            "sssiiii",
+            "sssiiiii",
             $nationalityName,
             $nationalityDescription,
             $createdAt,

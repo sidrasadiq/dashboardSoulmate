@@ -1,5 +1,6 @@
 <?php include 'layouts/session.php'; ?>
 <?php include 'layouts/main.php'; ?>
+<?php include 'layouts/functions.php'; ?>
 
 <head>
 
@@ -53,6 +54,8 @@
                     </div>
 
                     <div class="row row-cols-1 row-cols-xxl-5 row-cols-lg-3 row-cols-md-2">
+                        <?php displaySessionMessage(); ?>
+
                         <div class="col">
                             <div class="card">
                                 <div class="card-body">
