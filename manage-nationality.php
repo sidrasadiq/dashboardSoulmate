@@ -54,14 +54,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnSaveNationality"]))
 
         // Bind parameters to prevent SQL injection
         $stmt->bind_param(
-            "ssiiiii",
-            $nationalityName,
-            $nationalityDescription,
-            $createdAt,
-            $updatedAt,
-            $userId,  // Set created_by from session user ID
-            $userId,  // Set updated_by from session user ID (same on initial insert)
-            $nationalityStatus
+            "sssiiii",  // Corrected data types: "sssiiii"
+            $nationalityName,         // nationality_name (string)
+            $nationalityDescription,  // description (string)
+            $createdAt,               // created_at (string)
+            $updatedAt,               // updated_at (string)
+            $userId,                  // created_by (integer)
+            $userId,                  // updated_by (integer)
+            $nationalityStatus        // is_active (integer)
         );
 
         // Execute the statement
@@ -91,19 +91,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnSaveNationality"]))
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"])) {
     // Step 1: Retrieve and validate form data
-    $nationalityId = intval($_POST['id']); // Make sure ID is an integer
+    $nationalityId = intval($_POST['id']); // Ensure ID is an integer
     $nationalityName = trim($_POST['nationalityName']);
     $nationalityDescription = trim($_POST['nationalityDescription']);
     $nationalityStatus = intval($_POST['nationalityStatus']);
-    $updatedBy = $_SESSION['user_id']; // Assuming user_id is stored in session
+    $updatedBy = $_SESSION['user_id'] ?? null; // Ensure user_id is set
     $updatedAt = date("Y-m-d H:i:s");
+
+    // Check if user ID is available in session
+    if (!$updatedBy) {
+        $_SESSION['message'][] = array("type" => "error", "content" => "Error: User not logged in.");
+        header("location: manage-nationality.php");
+        exit();
+    }
 
     try {
         // Step 2: Start a database transaction
         $conn->begin_transaction();
 
         // Step 3: Prepare SQL for updating the nationality data
-        $sql = "UPDATE nationality 
+        $sql = "UPDATE nationality
                 SET nationality_name = ?, description = ?, is_active = ?, updated_by = ?, updated_at = ?
                 WHERE id = ?";
 
@@ -115,12 +122,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
         // Step 4: Bind parameters for security
         $stmt->bind_param(
             "ssiiii",
-            $nationalityName,
-            $nationalityDescription,
-            $nationalityStatus,
-            $updatedBy,
-            $updatedAt,
-            $nationalityId
+            $nationalityName,           // nationality_name (string)
+            $nationalityDescription,    // description (string)
+            $nationalityStatus,         // is_active (integer)
+            $updatedBy,                 // updated_by (integer)
+            $updatedAt,                 // updated_at (string, datetime format)
+            $nationalityId              // id (integer)
         );
 
         // Step 5: Execute the update statement
@@ -129,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
             // Commit the transaction
             $conn->commit();
         } else {
-            throw new Exception("Failed to update data. " . $stmt->error);
+            throw new Exception("Failed to update data: " . $stmt->error);
         }
 
         // Close the statement
