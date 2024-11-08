@@ -95,6 +95,26 @@
         </div>
       </li>
 
+      <li class="side-nav-item">
+        <a
+          data-bs-toggle="collapse"
+          href="#sidebarCast"
+          aria-expanded="false"
+          aria-controls="sidebarCast"
+          class="side-nav-link">
+          <i class="ri-flag-line"></i>
+          <span> Cast </span>
+          <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="sidebarCast">
+          <ul class="side-nav-second-level">
+            <li>
+              <a href="manage-cast.php">Add Cast</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
       <!-- <li class="side-nav-title">Apps</li>
 
       <li class="side-nav-item">

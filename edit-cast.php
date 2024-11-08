@@ -19,21 +19,20 @@ include 'layouts/functions.php';
 
 </head>
 <?php
-// Database connection (assuming $conn is the mysqli connection object)
 
 try {
     // Step 1: Start a transaction
     $conn->begin_transaction();
 
-    // Step 2: Get the nationality ID from the URL and validate it
+    // Step 2: Get the cast ID from the URL and validate it
     if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-        $nationalityId = intval($_GET['id']); // Ensure it's an integer
+        $castId = intval($_GET['id']); // Ensure it's an integer
     } else {
         throw new Exception("Invalid or missing ID.");
     }
 
-    // Step 3: Prepare SQL to fetch nationality data
-    $sql = "SELECT id, nationality_name, description, is_active, created_by, created_at, updated_by, updated_at FROM nationality WHERE id = ?";
+    // Step 3: Prepare SQL to fetch cast data
+    $sql = "SELECT id, cast_name, description, is_active, created_by, created_at, updated_by, updated_at FROM user_cast WHERE id = ?";
     $stmt = $conn->prepare($sql);
 
     if (!$stmt) {
@@ -41,7 +40,7 @@ try {
     }
 
     // Step 4: Bind the ID parameter to prevent SQL injection
-    $stmt->bind_param("i", $nationalityId);
+    $stmt->bind_param("i", $castId);
 
     // Step 5: Execute the query
     $stmt->execute();
@@ -49,9 +48,9 @@ try {
 
     // Step 6: Check if data was found and fetch it
     if ($result->num_rows > 0) {
-        $nationalityData = $result->fetch_assoc();
+        $castData = $result->fetch_assoc();
     } else {
-        throw new Exception("Nationality data not found for ID: " . $nationalityId);
+        throw new Exception("Cast data not found for ID: " . $castId);
     }
 
     // Step 7: Commit the transaction as data retrieval was successful
@@ -68,12 +67,14 @@ try {
     $_SESSION['message'][] = array("type" => "danger", "content" => "Error: " . $e->getMessage());
 
     // Redirect or handle the error as required (e.g., redirect to an error page or show a message)
-    header("location: manage-nationality.php");
+    header("location: manage-cast.php");
     exit();
 } finally {
     // Optionally, close the database connection if done
     // $conn->close();
+
 }
+
 ?>
 
 
@@ -89,17 +90,17 @@ try {
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">soulmate.com.pk</a></li>
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Nationality</a></li>
-                                        <li class="breadcrumb-item active">Add Nationality</li>
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Cast</a></li>
+                                        <li class="breadcrumb-item active">Edit Cast</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title">Add Nationality</h4>
+                                <h4 class="page-title">Edit Cast</h4>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <?php displaySessionMessage(); ?>
-                        <h2 class="text-center">Add Nationality</h2>
+                        <h2 class="text-center">Edit Cast</h2>
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-body">
@@ -107,17 +108,17 @@ try {
                                     <div class="row">
                                         <div>
 
-                                            <form action="<?php echo htmlspecialchars("manage-nationality.php"); ?>" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                                            <form action="<?php echo htmlspecialchars("manage-cast.php"); ?>" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
                                                 <div class="row mb-3">
-                                                    <h3>Edit Nationality Information</h3>
+                                                    <h3>Edit Cast Information</h3>
 
-                                                    <!-- Hidden input to hold the nationality ID -->
-                                                    <input type="hidden" name="nationalityId" value="<?php echo htmlspecialchars($nationalityId); ?>">
+                                                    <!-- Hidden input to hold the cast ID -->
+                                                    <input type="hidden" name="castId" value="<?php echo htmlspecialchars($castId); ?>">
 
                                                     <div class="col-lg-6">
                                                         <div class="mb-3">
-                                                            <label for="nationalityName" class="form-label">Nationality Name</label>
-                                                            <input type="text" id="nationalityName" name="nationalityName" class="form-control" placeholder="Enter the name of Nationality" value="<?php echo htmlspecialchars($nationalityData['nationality_name']); ?>">
+                                                            <label for="castName" class="form-label">Cast Name</label>
+                                                            <input type="text" id="castName" name="castName" class="form-control" required placeholder="Enter the name of the Cast" value="<?php echo htmlspecialchars($castData['cast_name']); ?>">
                                                             <div class="valid-feedback">Looks good!</div>
                                                             <div class="invalid-feedback">Please fill this field.</div>
                                                         </div>
@@ -125,8 +126,8 @@ try {
 
                                                     <div class="col-lg-6">
                                                         <div class="mb-3">
-                                                            <label for="nationalityDescription" class="form-label">Nationality Description</label>
-                                                            <input type="text" id="nationalityDescription" name="nationalityDescription" class="form-control" required placeholder="Add Material Description" value="<?php echo htmlspecialchars($nationalityData['description']); ?>">
+                                                            <label for="castDescription" class="form-label">Cast Description</label>
+                                                            <input type="text" id="castDescription" name="castDescription" class="form-control" placeholder="Enter the Cast Description" value="<?php echo htmlspecialchars($castData['description']); ?>">
                                                             <div class="valid-feedback">Looks good!</div>
                                                             <div class="invalid-feedback">Please fill this field.</div>
                                                         </div>
@@ -134,10 +135,10 @@ try {
 
                                                     <div class="col-lg-6">
                                                         <div class="mb-2">
-                                                            <label for="nationalityStatus" class="form-label">Nationality Status *</label>
-                                                            <select id="nationalityStatus" name="nationalityStatus" class="form-select select2" data-toggle="select2" required>
-                                                                <option value="1" <?php echo $nationalityData['is_active'] == 1 ? 'selected' : ''; ?>>Active</option>
-                                                                <option value="0" <?php echo $nationalityData['is_active'] == 0 ? 'selected' : ''; ?>>Inactive</option>
+                                                            <label for="castStatus" class="form-label">Cast Status *</label>
+                                                            <select id="castStatus" name="castStatus" class="form-select select2" data-toggle="select2" required>
+                                                                <option value="1" <?php echo $castData['is_active'] == 1 ? 'selected' : ''; ?>>Active</option>
+                                                                <option value="0" <?php echo $castData['is_active'] == 0 ? 'selected' : ''; ?>>Inactive</option>
                                                             </select>
                                                             <div class="valid-feedback">Looks good!</div>
                                                             <div class="invalid-feedback">Please select a status.</div>
@@ -147,10 +148,11 @@ try {
 
                                                 <div class="row mb-3">
                                                     <div class="col-lg-12 text-center">
-                                                        <button type="submit" id="btnUpdateNationality" name="btnUpdateNationality" class="btn btn-primary">Update Nationality</button>
+                                                        <button type="submit" id="btnUpdateCast" name="btnUpdateCast" class="btn btn-primary">Update Cast</button>
                                                     </div>
                                                 </div>
                                             </form>
+
                                         </div>
                                     </div>
                                 </div>
@@ -166,23 +168,7 @@ try {
     <?php include 'layouts/right-sidebar.php'; ?>
     <?php include 'layouts/footer-scripts.php'; ?>
     <script src="assets/js/app.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            "use strict";
-            $("#scroll-horizontal-datatable").DataTable({
-                scrollX: true,
-                language: {
-                    paginate: {
-                        previous: "<i class='ri-arrow-left-s-line'>",
-                        next: "<i class='ri-arrow-right-s-line'>",
-                    },
-                },
-                drawCallback: function() {
-                    $(".dataTables_paginate > .pagination").addClass("pagination-rounded");
-                },
-            });
-        });
-    </script>
+
     <script>
         <?php
         if (isset($_SESSION['message'])) {

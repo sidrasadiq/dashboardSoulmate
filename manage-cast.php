@@ -6,7 +6,7 @@ include 'layouts/functions.php';
 ?>
 
 <head>
-    <title>Nationality | Soulmate.com.pk</title>
+    <title>Cast | Soulmate.com.pk</title>
     <?php include 'layouts/title-meta.php'; ?>
 
     <?php include 'layouts/head-css.php'; ?>
@@ -20,31 +20,32 @@ include 'layouts/functions.php';
 </head>
 
 <?php
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnSaveNationality"])) {
-    // Input data from form
-    $nationalityName = trim($_POST['nationalityName']);
-    $nationalityDescription = trim($_POST['nationalityDescription']);
-    $nationalityStatus = intval($_POST['nationalityStatus']);
+
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnSaveCast"])) {
+    // Step 1: Retrieve and sanitize form data
+    $castName = trim($_POST['castName']);
+    $castDescription = trim($_POST['castDescription']);
+    $castStatus = intval($_POST['castStatus']);
     $createdAt = date("Y-m-d H:i:s");
     $updatedAt = date("Y-m-d H:i:s");
 
-    // Retrieve the user ID from session
+    // Retrieve the user ID from session (assuming user ID is stored in session)
     $userId = $_SESSION['user_id'] ?? null;
 
-    // Check if user ID is available in session
+    // Check if the user ID is available
     if (!$userId) {
         $_SESSION['message'][] = array("type" => "danger", "content" => "Error: User not logged in.");
-        header("location: manage-nationality.php");
+        header("location: manage-cast.php");
         exit();
     }
 
     try {
-        // Start the transaction
+        // Step 2: Begin a database transaction
         $conn->begin_transaction();
 
-        // Prepare the SQL statement to insert the data
-        $sql = "INSERT INTO nationality 
-                (nationality_name, description, created_at, updated_at, created_by, updated_by, is_active)
+        // Step 3: Prepare SQL statement to insert data into user_casts table
+        $sql = "INSERT INTO user_cast 
+                (cast_name, description, created_at, updated_at, created_by, updated_by, is_active)
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         $stmt = $conn->prepare($sql);
@@ -52,23 +53,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnSaveNationality"]))
             throw new Exception("Failed to prepare statement: " . $conn->error);
         }
 
-        // Bind parameters to prevent SQL injection
+        // Step 4: Bind parameters for security
         $stmt->bind_param(
-            "sssiiii",  // Corrected data types: "sssiiii"
-            $nationalityName,         // nationality_name (string)
-            $nationalityDescription,  // description (string)
-            $createdAt,               // created_at (string)
-            $updatedAt,               // updated_at (string)
-            $userId,                  // created_by (integer)
-            $userId,                  // updated_by (integer)
-            $nationalityStatus        // is_active (integer)
+            "sssiiii",
+            $castName,
+            $castDescription,
+            $createdAt,
+            $updatedAt,
+            $userId,  // Created by user ID
+            $userId,  // Updated by user ID (same on initial insert)
+            $castStatus
         );
 
-        // Execute the statement
+        // Step 5: Execute the statement
         if ($stmt->execute()) {
             // Commit transaction if the statement is executed successfully
             $conn->commit();
-            $_SESSION['message'][] = array("type" => "success", "content" => "Nationality data saved successfully!");
+            $_SESSION['message'][] = array("type" => "success", "content" => "Cast data saved successfully!");
         } else {
             throw new Exception("Failed to save the data. " . $stmt->error);
         }
@@ -76,32 +77,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnSaveNationality"]))
         // Close the statement
         $stmt->close();
     } catch (Exception $e) {
-        // Roll back transaction on error
+        // Step 6: Rollback transaction on error
         $conn->rollback();
 
         // Store error message in session
         $_SESSION['message'][] = array("type" => "danger", "content" => "Error: " . $e->getMessage());
     } finally {
-        // Redirect to manage nationality page
-        header("location: manage-nationality.php");
-        exit(); // Ensure script execution stops after header redirection
+        // Step 7: Redirect to manage cast page
+        header("location: manage-cast.php");
+        exit(); // Ensure script execution stops after redirection
     }
 }
 
-
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"])) {
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateCast"])) {
     // Step 1: Retrieve and validate form data
-    $nationalityId = intval($_POST['nationalityId']); // Ensure ID is an integer
-    $nationalityName = trim($_POST['nationalityName']);
-    $nationalityDescription = trim($_POST['nationalityDescription']);
-    $nationalityStatus = intval($_POST['nationalityStatus']);
+    $castId = intval($_POST['castId']); // Ensure ID is an integer
+    $castName = trim($_POST['castName']);
+    $castDescription = trim($_POST['castDescription']);
+    $castStatus = intval($_POST['castStatus']);
     $updatedBy = $_SESSION['user_id'] ?? null; // Ensure user_id is set
     $updatedAt = date("Y-m-d H:i:s");
 
     // Check if user ID is available in session
     if (!$updatedBy) {
         $_SESSION['message'][] = array("type" => "danger", "content" => "Error: User not logged in.");
-        header("location: manage-nationality.php");
+        header("location: manage-cast.php");
         exit();
     }
 
@@ -109,9 +109,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
         // Step 2: Start a database transaction
         $conn->begin_transaction();
 
-        // Step 3: Prepare SQL for updating the nationality data
-        $sql = "UPDATE nationality
-                SET nationality_name = ?, description = ?, is_active = ?, updated_by = ?, updated_at = ?
+        // Step 3: Prepare SQL for updating the cast data
+        $sql = "UPDATE user_cast
+                SET cast_name = ?, description = ?, is_active = ?, updated_by = ?, updated_at = ?
                 WHERE id = ?";
 
         $stmt = $conn->prepare($sql);
@@ -121,18 +121,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
 
         // Step 4: Bind parameters for security
         $stmt->bind_param(
-            "ssiiii",
-            $nationalityName,           // nationality_name (string)
-            $nationalityDescription,    // description (string)
-            $nationalityStatus,         // is_active (integer)
-            $updatedBy,                 // updated_by (integer)
-            $updatedAt,                 // updated_at (string, datetime format)
-            $nationalityId              // id (integer)
+            "ssiisi",
+            $castName,               // cast_name (string)
+            $castDescription,        // description (string)
+            $castStatus,             // is_active (integer)
+            $updatedBy,              // updated_by (integer)
+            $updatedAt,              // updated_at (string, datetime format)
+            $castId                  // id (integer)
         );
 
         // Step 5: Execute the update statement
         if ($stmt->execute()) {
-            $_SESSION['message'][] = array("type" => "success", "content" => "Nationality data updated successfully!");
+            $_SESSION['message'][] = array("type" => "success", "content" => "Cast data updated successfully!");
             // Commit the transaction
             $conn->commit();
         } else {
@@ -148,8 +148,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
         // Store error message in session
         $_SESSION['message'][] = array("type" => "danger", "content" => "Error: " . $e->getMessage());
     } finally {
-        // Step 7: Redirect back to manage nationality page
-        header("location: manage-nationality.php");
+        // Step 7: Redirect back to manage cast page
+        header("location: manage-cast.php");
         exit(); // Ensure script execution stops after redirection
     }
 }
@@ -168,17 +168,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                                 <div class="page-title-right">
                                     <ol class="breadcrumb m-0">
                                         <li class="breadcrumb-item"><a href="javascript: void(0);">soulmate.com.pk</a></li>
-                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Nationality</a></li>
-                                        <li class="breadcrumb-item active">Add Nationality</li>
+                                        <li class="breadcrumb-item"><a href="javascript: void(0);">Cast</a></li>
+                                        <li class="breadcrumb-item active">Add Cast</li>
                                     </ol>
                                 </div>
-                                <h4 class="page-title">Add Nationality</h4>
+                                <h4 class="page-title">Add Cast</h4>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <?php displaySessionMessage(); ?>
-                        <h2 class="text-center">Add Nationality</h2>
+                        <h2 class="text-center">Add Cast</h2>
                         <div class="col-12">
                             <div class="card">
                                 <div class="card-body">
@@ -187,27 +187,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                                         <div>
                                             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
                                                 <div class="row mb-3">
-                                                    <h3>Nationality Information</h3>
+                                                    <h3>Cast Information</h3>
                                                     <div class="col-lg-6">
                                                         <div class="mb-3">
-                                                            <label for="nationalityName" class="form-label">Nationality Name</label>
-                                                            <input type="text" id="nationalityName" name="nationalityName" class="form-control" required placeholder="Enter the name of Nationality">
+                                                            <label for="castName" class="form-label">Cast Name</label>
+                                                            <input type="text" id="castName" name="castName" class="form-control" required placeholder="Enter the name of the Cast">
                                                             <div class="valid-feedback">Looks good!</div>
-                                                            <div class="invalid-feedback">Please fill this field.</div>
+                                                            <div class="invalid-feedback">Please enter the cast name.</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6">
                                                         <div class="mb-3">
-                                                            <label for="nationalityDescription" class="form-label">Nationality Description</label>
-                                                            <input type="text" id="nationalityDescription" name="nationalityDescription" class="form-control" placeholder="Add Material Description">
+                                                            <label for="castDescription" class="form-label">Cast Description</label>
+                                                            <input type="text" id="castDescription" name="castDescription" class="form-control" placeholder="Enter the Cast Description">
                                                             <div class="valid-feedback">Looks good!</div>
-                                                            <div class="invalid-feedback">Please fill this field.</div>
+                                                            <div class="invalid-feedback">Please enter the cast description.</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-lg-6">
                                                         <div class="mb-2">
-                                                            <label for="nationalityStatus" class="form-label">Nationality Status *</label>
-                                                            <select id="nationalityStatus" name="nationalityStatus" class="form-select select2" data-toggle="select2" required>
+                                                            <label for="castStatus" class="form-label">Cast Status *</label>
+                                                            <select id="castStatus" name="castStatus" class="form-select select2" data-toggle="select2" required>
                                                                 <option value="1">Active</option>
                                                                 <option value="0">Inactive</option>
                                                             </select>
@@ -218,10 +218,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                                                 </div>
                                                 <div class="row mb-3">
                                                     <div class="col-lg-12 text-center">
-                                                        <button type="submit" id="btnSaveNationality" name="btnSaveNationality" class="btn btn-primary ">Save Order</button>
+                                                        <button type="submit" id="btnSaveCast" name="btnSaveCast" class="btn btn-primary">Save Cast</button>
                                                     </div>
                                                 </div>
                                             </form>
+
                                         </div>
                                     </div>
                                 </div>
@@ -232,7 +233,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                         <div class="col-xl-12">
                             <div class="card">
                                 <div class="card-body">
-                                    <h4 class="header-title">All Saved Nationalities
+                                    <h4 class="header-title">All Saved Casts
                                     </h4>
                                     <p class="text-muted fs-14"></p>
                                     <div class="table-responsive-sm">
@@ -242,13 +243,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                                             // Begin a transaction
                                             $conn->begin_transaction();
 
-                                            // Prepare the SQL statement
-                                            $sql = "SELECT n.id, n.nationality_name, n.description, n.created_at, n.updated_at, 
+                                            // Prepare the SQL statement for fetching cast data
+                                            $sql = "SELECT c.id, c.cast_name, c.description, c.created_at, c.updated_at, 
                                                         u1.username AS created_by, u2.username AS updated_by, 
-                                                        IF(n.is_active = 1, 'Active', 'Inactive') AS status
-                                                    FROM nationality n
-                                                    LEFT JOIN users u1 ON n.created_by = u1.id
-                                                    LEFT JOIN users u2 ON n.updated_by = u2.id";
+                                                        IF(c.is_active = 1, 'Active', 'Inactive') AS status
+                                                    FROM user_cast c
+                                                    LEFT JOIN users u1 ON c.created_by = u1.id
+                                                    LEFT JOIN users u2 ON c.updated_by = u2.id";
 
                                             // Prepare and execute the query
                                             $stmt = $conn->prepare($sql);
@@ -272,7 +273,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                                                 <thead>
                                                     <tr>
                                                         <th>ID</th>
-                                                        <th>Nationality Name</th>
+                                                        <th>Cast Name</th>
                                                         <th>Description</th>
                                                         <th>Created By</th>
                                                         <th>Created At</th>
@@ -287,19 +288,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                                                         while ($row = $result->fetch_assoc()) {
                                                             echo "<tr>";
                                                             echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                                                            echo "<td>" . htmlspecialchars($row['nationality_name']) . "</td>";
+                                                            echo "<td>" . htmlspecialchars($row['cast_name']) . "</td>";
                                                             echo "<td>" . htmlspecialchars($row['description']) . "</td>";
                                                             echo "<td>" . htmlspecialchars($row['created_by']) . "</td>";
                                                             echo "<td>" . htmlspecialchars($row['created_at']) . "</td>";
                                                             echo "<td>" . htmlspecialchars($row['status']) . "</td>";
                                                             echo "<td>
-                                                                    <a href='edit-nationality.php?id=" . urlencode($row['id']) . "' class='btn btn-sm btn-primary'>Edit</a>
-                                                                    <a href='delete-nationality.php?id=" . urlencode($row['id']) . "' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure you want to delete this nationality?\")'>Delete</a>
-                                                                </td>";
+                                                                        <a href='edit-cast.php?id=" . urlencode($row['id']) . "' class='btn btn-sm btn-primary'>Edit</a>
+                                                                        <a href='delete-cast.php?id=" . urlencode($row['id']) . "' class='btn btn-sm btn-danger' onclick='return confirm(\"Are you sure you want to delete this cast?\")'>Delete</a>
+                                                                    </td>";
                                                             echo "</tr>";
                                                         }
                                                     } else {
-                                                        echo "<tr><td colspan='9' class='text-center'>No records found</td></tr>";
+                                                        echo "<tr><td colspan='7' class='text-center'>No records found</td></tr>";
                                                     }
                                                     ?>
                                                 </tbody>
@@ -316,13 +317,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["btnUpdateNationality"]
                                             $_SESSION['message'][] = array("type" => "danger", "content" => "Error: " . $e->getMessage());
                                             echo "<p class='text-danger'>An error occurred while fetching the data. Please try again later.</p>";
                                         }
-                                        // finally {
-                                        //     // Close the database connection
-                                        //     $conn->close();
-                                        // }
                                         ?>
-
                                     </div>
+
                                 </div>
                             </div>
                         </div>

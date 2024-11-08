@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* form section Button */
-        .form-section button {
+        .form-section #login-button {
             width: 100%;
             padding: 12px;
             margin-top: 15px;
@@ -241,7 +241,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <!-- Form Section -->
             <div class="form-section ">
-                <?php displaySessionMessage(); ?>
                 <form class="login-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                     <h2 class="text-center mb-4">Members Log In</h2>
                     <div class="input-group mt-5">
@@ -250,9 +249,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="input-group">
                         <input type="password" name="password" class="form-control" placeholder="Your Password" required>
                     </div>
+                    <?php displaySessionMessage(); ?>
 
                     <!-- <button type="submit" onclick="window.location.href='complete-profile.php';">Continue</button> -->
-                    <button type="submit">Continue</button>
+                    <button id="login-button" type="submit">Continue</button>
                     <div class="text-center mt-4">
                         <p>or</p>
                         <!-- Google Sign-In Button -->
