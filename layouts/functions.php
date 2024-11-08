@@ -90,18 +90,18 @@ function displaySessionMessage()
         unset($_SESSION['message']);
 
         // Add JavaScript to dismiss each alert after 3 seconds
-        // echo "<script>
-        //         setTimeout(function() {
-        //             var alerts = document.querySelectorAll('.session-alert');
-        //             alerts.forEach(function(alert) {
-        //                 alert.classList.remove('show');
-        //                 alert.classList.add('fade');
-        //                 setTimeout(function() {
-        //                     alert.remove();
-        //                 }, 500); // Wait for the fade effect to finish
-        //             });
-        //         }, 5000); // 3 seconds
-        //       </script>";
+        echo "<script>
+                setTimeout(function() {
+                    var alerts = document.querySelectorAll('.session-alert');
+                    alerts.forEach(function(alert) {
+                        alert.classList.remove('show');
+                        alert.classList.add('fade');
+                        setTimeout(function() {
+                            alert.remove();
+                        }, 500); // Wait for the fade effect to finish
+                    });
+                }, 5000); // 5 seconds
+              </script>";
     }
 }
 // Function to fetch a specific column value from any table based on column name and ID

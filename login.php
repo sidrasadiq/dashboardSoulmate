@@ -159,7 +159,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
 
         /* hover form section */
-        .form-section button:hover {
+        .form-section #login-button:hover {
             background: linear-gradient(135deg, #E63A7A, #3987cc);
         }
 
@@ -243,13 +243,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-section ">
                 <form class="login-form" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST">
                     <h2 class="text-center mb-4">Members Log In</h2>
+                    <?php displaySessionMessage(); ?>
                     <div class="input-group mt-5">
                         <input type="email" name="email" class="form-control" placeholder="Your Email Address" required>
                     </div>
                     <div class="input-group">
                         <input type="password" name="password" class="form-control" placeholder="Your Password" required>
                     </div>
-                    <?php displaySessionMessage(); ?>
 
                     <!-- <button type="submit" onclick="window.location.href='complete-profile.php';">Continue</button> -->
                     <button id="login-button" type="submit">Continue</button>
