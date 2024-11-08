@@ -197,7 +197,7 @@
 <body>
     <!-- logo -->
     <div class="m-2">
-        <img src="assest/logo.png">
+        <img src="assets/images/logo.png">
     </div>
     <!-- main contianer start -->
     <div class="container mt-5">
@@ -886,6 +886,21 @@
                 updateProgressBar();
             });
         }
+    </script>
+    <script>
+        // Get the file input element
+        const fileInput = document.getElementById('fileInput');
+        const fileNameDiv = document.getElementById('fileName');
+
+        // Listen for file selection
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0]; // Get the first file
+            if (file) {
+                fileNameDiv.textContent = file.name; // Display the file name
+            } else {
+                fileNameDiv.textContent = "No file chosen"; // Default text if no file is selected
+            }
+        });
     </script>
 </body>
 
