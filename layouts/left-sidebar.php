@@ -102,7 +102,7 @@
           aria-expanded="false"
           aria-controls="sidebarCast"
           class="side-nav-link">
-          <i class="ri-flag-line"></i>
+          <i class="ri-cast-line"></i>
           <span> Cast </span>
           <span class="menu-arrow"></span>
         </a>
@@ -110,6 +110,46 @@
           <ul class="side-nav-second-level">
             <li>
               <a href="manage-cast.php">Add Cast</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="side-nav-item">
+        <a
+          data-bs-toggle="collapse"
+          href="#sidebarReligion"
+          aria-expanded="false"
+          aria-controls="sidebarReligion"
+          class="side-nav-link">
+          <i class="ri-moon-line"></i>
+          <span> Religion </span>
+          <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="sidebarReligion">
+          <ul class="side-nav-second-level">
+            <li>
+              <a href="manage-religion.php">Add Religion</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="side-nav-item">
+        <a
+          data-bs-toggle="collapse"
+          href="#sidebarCountry"
+          aria-expanded="false"
+          aria-controls="sidebarCountry"
+          class="side-nav-link">
+          <i class=" ri-map-pin-5-line"></i>
+          <span> Countries </span>
+          <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="sidebarCountry">
+          <ul class="side-nav-second-level">
+            <li>
+              <a href="manage-countries.php">Add Country</a>
             </li>
           </ul>
         </div>
