@@ -155,6 +155,46 @@
         </div>
       </li>
 
+      <li class="side-nav-item">
+        <a
+          data-bs-toggle="collapse"
+          href="#sidebarCity"
+          aria-expanded="false"
+          aria-controls="sidebarCity"
+          class="side-nav-link">
+          <i class="ri-building-line"></i>
+          <span> Cities </span>
+          <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="sidebarCity">
+          <ul class="side-nav-second-level">
+            <li>
+              <a href="manage-cities.php">Add City</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="side-nav-item">
+        <a
+          data-bs-toggle="collapse"
+          href="#sidebarQualifications"
+          aria-expanded="false"
+          aria-controls="sidebarQualifications"
+          class="side-nav-link">
+          <i class="ri-book-open-line"></i>
+          <span> Qualificcations </span>
+          <span class="menu-arrow"></span>
+        </a>
+        <div class="collapse" id="sidebarQualifications">
+          <ul class="side-nav-second-level">
+            <li>
+              <a href="manage-qualifications.php">Add Qualificcation</a>
+            </li>
+          </ul>
+        </div>
+      </li>
+
       <!-- <li class="side-nav-title">Apps</li>
 
       <li class="side-nav-item">
