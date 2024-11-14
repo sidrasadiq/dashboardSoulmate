@@ -1,3 +1,155 @@
+<?php
+session_start();
+include 'layouts/config.php';
+include 'layouts/functions.php';
+
+// Ensure the user is logged in by checking the session for 'user_id'
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['message'][] = array("type" => "error", "content" => "You must be logged in to complete your profile.");
+    header("Location: login.php");
+    exit();
+}
+
+// Retrieve user_id from the session
+$userId = $_SESSION['user_id'];
+
+// Check if the user has already completed their profile
+$profileCheckQuery = "SELECT * FROM profiles WHERE user_id = ?";
+$stmtProfileCheck = $conn->prepare($profileCheckQuery);
+$stmtProfileCheck->bind_param("i", $userId);
+$stmtProfileCheck->execute();
+$profileResult = $stmtProfileCheck->get_result();
+
+// If a profile already exists, redirect to the index page
+if ($profileResult->num_rows > 0) {
+    $_SESSION['message'][] = array("type" => "info", "content" => "You have already completed your profile.");
+    header("Location: user_index.php?user_id=$userId");
+    exit();
+}
+
+// Initialize arrays for countries and cities
+$countries = [];
+$cities = [];
+
+try {
+    // Start a transaction for data fetching
+    $conn->begin_transaction();
+
+    // Fetch countries
+    $queryCountries = "SELECT id, country_name FROM countries ORDER BY id ASC;";
+    $stmtCountries = $conn->prepare($queryCountries);
+    $stmtCountries->execute();
+    $resultCountries = $stmtCountries->get_result();
+    while ($row = $resultCountries->fetch_assoc()) {
+        $countries[] = $row;
+    }
+
+    // Fetch cities
+    $queryCities = "SELECT id, city_name FROM cities ORDER BY id ASC;";
+    $stmtCities = $conn->prepare($queryCities);
+    $stmtCities->execute();
+    $resultCities = $stmtCities->get_result();
+    while ($row = $resultCities->fetch_assoc()) {
+        $cities[] = $row;
+    }
+
+    $conn->commit();
+} catch (Exception $e) {
+    $conn->rollback();
+    $_SESSION['message'][] = array("type" => "error", "content" => "Error: " . $e->getMessage());
+    header("location: complete-profile.php");
+    exit();
+}
+// Check if form is submitted via POST
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
+
+    // Sanitize and retrieve form data
+    $photo = isset($_FILES['uploadedFile']) ? $_FILES['uploadedFile']['name'] : null;
+
+    $ageFrom = isset($_POST['ageFrom']) ? intval($_POST['ageFrom']) : null;
+    $ageTo = isset($_POST['ageTo']) ? intval($_POST['ageTo']) : null;
+    $country = isset($_POST['country']) ? intval($_POST['country']) : null;
+    $city = isset($_POST['city']) ? intval($_POST['city']) : null;
+    $relationshipLooking = isset($_POST['relationshipLooking']) ? (is_array($_POST['relationshipLooking']) ? implode(", ", $_POST['relationshipLooking']) : $_POST['relationshipLooking']) : null;
+    $ethnicity = isset($_POST['ethnicity']) ? $_POST['ethnicity'] : null;
+    $drinkAlcohol = isset($_POST['drinkAlcohol']) ? $_POST['drinkAlcohol'] : 'No'; // Set default to 'No' if not selected
+    $smoking = isset($_POST['smoking']) ? $_POST['smoking'] : 'No'; // Set default to 'No'
+    $children = isset($_POST['children']) ? $_POST['children'] : 'No'; // Set default to 'No'
+    $maritalStatus = isset($_POST['maritalStatus']) ? $_POST['maritalStatus'] : null;
+    $appearance = isset($_POST['appearance']) ? $_POST['appearance'] : null;
+    $bodyType = isset($_POST['bodyType']) ? $_POST['bodyType'] : null;
+    var_dump($_POST);
+
+    try {
+        // Start the transaction for saving data
+        $conn->begin_transaction();
+
+        // Handle file upload for photo
+        if (isset($_FILES['uploadedFile']) && $_FILES['uploadedFile']['error'] == 0) {
+            $allowedTypes = ['image/jpeg', 'image/png', 'image/pdf'];
+            if (in_array($_FILES['uploadedFile']['type'], $allowedTypes)) {
+                $uploadDir = 'uploads/';
+                $photo = basename($_FILES['uploadedFile']['name']);
+                $uploadFile = $uploadDir . $photo;
+                if (!move_uploaded_file($_FILES['uploadedFile']['tmp_name'], $uploadFile)) {
+                    throw new Exception("Failed to upload the file.");
+                }
+            } else {
+                throw new Exception("Invalid file type. Only JPEG, PNG, and GIF are allowed.");
+            }
+        }
+
+        // Insert profile data into the database
+        $stmt = $conn->prepare("INSERT INTO profiles
+            (user_id, prefer_age_from, prefer_age_to, country_id, city_id, relationship_looking, ethnicity, 
+            drink_alcohol, smoking, children, marital_status, my_appearance, body_type, profile_picture)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+
+        // Bind user_id (from session) with the other fields
+        $stmt->bind_param(
+            "iiiiisssssssss", // Updated to 14 placeholders to match the parameters
+            $userId,        // Insert user_id as a foreign key
+            $ageFrom,
+            $ageTo,
+            $country,
+            $city,
+            $relationshipLooking,
+            $ethnicity,
+            $drinkAlcohol,
+            $smoking,
+            $children,
+            $maritalStatus,
+            $appearance,
+            $bodyType,
+            $photo
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception("Failed to insert profile data: " . $stmt->error);
+        }
+
+        // Commit the transaction after successful insert
+        $conn->commit();
+
+        $_SESSION['message'][] = array("type" => "success", "content" => "Profile saved successfully!");
+        header("Location: user_index.php?user_id=$userId"); // Redirect to the next page
+        exit();
+    } catch (Exception $e) {
+        // Rollback if error occurs
+        $conn->rollback();
+        $_SESSION['message'][] = array("type" => "error", "content" => "Error: " . $e->getMessage());
+        header("location: complete-profile.php");
+        exit();
+    }
+}
+?>
+
+
+
+
+
+
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -201,7 +353,8 @@
     </div>
     <!-- main contianer start -->
     <div class="container mt-5">
-        <form id="loginForm">
+        <?php displaySessionMessage(); ?>
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" class="complete-profile" enctype="multipart/form-data">
             <!-- Step 1:  Add Photo -->
             <div class="step active position-relative" id="step1">
                 <h1 class="mt-5 text-center step-num st-1">1</h1>
@@ -212,7 +365,7 @@
                         <div class="file-upload-icon">📁</div>
                         <div class="file-upload-text">Drag and drop or click to upload</div>
                         <div class="file-upload-subtext">Supports JPEG, PNG, PDF</div>
-                        <input type="file" id="fileInput" accept=".jpeg, .png, .pdf">
+                        <input type="file" id="fileInput" name="uploadedFile" accept=".jpeg, .png, .pdf" required>
                     </div>
 
                     <!-- Placeholder for showing uploaded file name -->
@@ -262,10 +415,10 @@
                                             <div class="form-group mb-3">
 
                                                 <label for="option1"></label>
-                                                <select class="form-select" id="option1">
-                                                    <option selected>18</option>
-                                                    <option value="1">19</option>
-                                                    <option value="2">20</option>
+                                                <select class="form-select" name="ageFrom" id="option1" required>
+                                                    <option selected value="18">18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -273,10 +426,10 @@
                                         <div class="col-6">
                                             <div class="form-group mb-3">
                                                 <label for="option1"></label>
-                                                <select class="form-select" id="option1">
-                                                    <option selected>18</option>
-                                                    <option value="1">19</option>
-                                                    <option value="2">20</option>
+                                                <select class="form-select" name="ageTo" id="option1" required>
+                                                    <option value="18" selected>18</option>
+                                                    <option value="19">19</option>
+                                                    <option value="20">20</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -309,39 +462,28 @@
                                 <div class="card-body card-body-st2 mb-5">
                                     <!--  -->
                                     <div class="row ">
-                                        <div class="col-4">
+                                        <div class="col-6">
                                             <div class="form-group mb-3">
 
                                                 <label for="option1"></label>
-                                                <select class="form-select" id="option1">
+                                                <select class="form-select" name="country" id="option1" required>
                                                     <option selected>Select Country</option>
-                                                    <option value="1">Country 1</option>
-                                                    <option value="2">Country 2</option>
-                                                    <option value="3">Country </option>
+                                                    <?php foreach ($countries as $country): ?>
+                                                        <option value="<?php echo $country['id']; ?>"><?php echo $country['country_name']; ?></option>
+                                                        <?php endforeach; ?>>
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-4">
+
+                                        <div class="col-6">
                                             <div class="form-group mb-3">
 
                                                 <label for="option1"> </label>
-                                                <select class="form-select" id="option1">
-                                                    <option selected>Select State</option>
-                                                    <option value="1">State 1</option>
-                                                    <option value="2">State 2</option>
-                                                    <option value="3">State 3</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-4">
-                                            <div class="form-group mb-3">
-
-                                                <label for="option1"> </label>
-                                                <select class="form-select" id="option1">
-                                                    <option selected>Select City</option>
-                                                    <option value="1">City 1</option>
-                                                    <option value="2">City 2</option>
-                                                    <option value="3">City 3</option>
+                                                <select class="form-select" name="city" id="city" required>
+                                                    <option selected>Select city</option>
+                                                    <?php foreach ($cities as $city): ?>
+                                                        <option value="<?php echo $city['id']; ?>"><?php echo $city['city_name']; ?></option>
+                                                        <?php endforeach; ?>>
                                                 </select>
                                             </div>
                                         </div>
@@ -374,13 +516,13 @@
                                 <div class="card-body card-body-st2 mb-5">
                                     <!--  -->
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
-                                        <label class="form-check-label" for="inlineCheckbox1">Marriage</label>
+                                        <input class="form-check-input" name="relationshipLooking" type="checkbox" id="inlineCheckbox1" value="marriage">
+                                        <label class="form-check-label" for="relationshipLooking">Marriage</label>
                                     </div>
                                     <hr>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="option1">
-                                        <label class="form-check-label" for="inlineCheckbox1">Friendship</label>
+                                        <input class="form-check-input" type="checkbox" name="relationshipLooking" id="inlineCheckbox1" value="friendship">
+                                        <label class="form-check-label" for="relationshipLooking">Friendship</label>
                                     </div>
                                     <hr>
                                     <!--  -->
@@ -407,61 +549,61 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" id="flexRadioDefault1" value=" arab (middle eastern)">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Arab (Middle Eastern) </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" id="flexRadioDefault1" value="asian">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Asian </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" id="flexRadioDefault1" value="black">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Black</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" value="caucasian (white)" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Caucasian (White) </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" value=" hispanic/latino " id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Hispanic/Latino </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" value="indain" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Indain </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" value="pacific islander" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Pacific Islander </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" value="other" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Other </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" value="mixed" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Mixed </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="ethnicity" value="prefer not to say" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Prefre not to say </label>
                             </div>
@@ -493,50 +635,50 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" value="islam-sunni" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Islam - Sunni </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" id="flexRadioDefault1" value="islam-shiite">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Islam - Shiite </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" value="islam-sufism" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Islam - Sufism</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" value="islam-ahmadiyya" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Islam - Ahmadiyya </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" value="islam-other" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Islam - Other </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" value=" wlling to revert" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Willing to revert</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" value="other" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Other </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                                <label class="form-check-label" for="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="beliefs" value="prefer not to say" id="flexRadioDefault1">
+                                <label class="form-check-label" for="prefer not to say">
                                     Prefre not to say </label>
                             </div>
                             <hr>
@@ -567,26 +709,26 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="drinkAlcohol" value=" do drink " id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Do drink </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="drinkAlcohol" value="occasionally drink " id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Occasionally drink </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="drinkAlcohol" value="don't drink" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Don't drink</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                                <label class="form-check-label" for="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="drinkAlcohol" value="prefer not to say" id="flexRadioDefault1">
+                                <label class="form-check-label" for="prefer not to say">
                                     Prefre not to say </label>
                             </div>
                             <hr>
@@ -613,27 +755,27 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="smoking" value="do smoke" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Do smoke </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="smoking" value=" occasionally smoke" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Occasionally smoke</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="smoking" value="don't smoke" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Don't smoke</label>
                             </div>
                             <hr>
 
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                                <label class="form-check-label" for="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="smoking" value="prefer not to say" id="flexRadioDefault1">
+                                <label class="form-check-label" for="prefer not to say">
                                     Prefre not to say </label>
                             </div>
                             <hr>
@@ -660,19 +802,19 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="children" value="yes" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Yes </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="children" value="not sure" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Not Sure</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="children" value="no" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     No</label>
                             </div>
@@ -700,38 +842,38 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="maritalStatus" value="single" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Single </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="maritalStatus" value="separated" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Separated</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="maritalStatus" value="widowed" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Widowed</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="maritalStatus" value="divorced" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Divorced</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="maritalStatus" value="other" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Other</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
-                                <label class="form-check-label" for="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="maritalStatus" value="prefer not to say" id="flexRadioDefault1">
+                                <label class="form-check-label" for="prefer not to say">
                                     Prefer not to say</label>
                             </div>
                             <hr>
@@ -758,25 +900,25 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="appearance" value="below average " id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Below average </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="appearance" value="average" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Average</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="appearance" value="attractive" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Attractive</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="appearance" value=" very attractive" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Very attractive</label>
                             </div>
@@ -804,37 +946,37 @@
                         <div class="card-body card-body-st2 mb-5">
                             <!--  -->
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="bodyType" value="petite" id="flexRadioDefault1">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Petite </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="bodyType" id="flexRadioDefault1" value="slim">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Slim</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="bodyType" id="flexRadioDefault1" value="average">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Average</label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="bodyType" id="flexRadioDefault1" value="few extra pounds">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Few Extra Pounds </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="bodyType" id="flexRadioDefault1" value="full figured ">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Full Figured </label>
                             </div>
                             <hr>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1">
+                                <input class="form-check-input" type="radio" name="bodyType" id="flexRadioDefault1" value="large and lovely">
                                 <label class="form-check-label" for="flexRadioDefault1">
                                     Large and Lovely</label>
                             </div>
@@ -845,7 +987,7 @@
             </div>
             <div class="step-buttons  position-absolute end-0 ">
                 <button type="button" class="btn btn-secondary btn-lg btn-pre " id="prevToStep11">Back</button>
-                <button type="button" class="btn btn-lg btn-nxt " id="">Next <i class="bi bi-arrow-right"></i></button>
+                <button type="submit" class="btn btn-lg btn-nxt " name="submit" id="submit" value="submit">Submit </button>
             </div>
         </div>
     </div>

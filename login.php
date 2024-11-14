@@ -45,11 +45,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["username"] = $username;
                 $_SESSION["role_id"] = $role;
                 $_SESSION["email"] = $email;
+                // Check user role and redirect accordingly
+                if ($role == 1) {
+                    header("Location: index.php");
+                } else {
 
-                // Set success message
-                $_SESSION['message'][] = ["type" => "success", "content" => "Login successful!"];
-                header("Location: index.php");
-                exit();
+                    // Set success message
+                    // $_SESSION['message'][] = ["type" => "success", "content" => "Login successful!"];
+                    header("Location: complete-profile.php");
+                    exit();
+                }
             } else {
                 $_SESSION['message'][] = ["type" => "danger", "content" => "Invalid email or password."];
                 header("Location: " . $_SERVER['PHP_SELF']);

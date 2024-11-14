@@ -13,6 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
     $userpass = password_hash(trim($_POST['userpass']), PASSWORD_BCRYPT); // Secure password hashing
     $createdAt = date("Y-m-d H:i:s");
     $updatedAt = date("Y-m-d H:i:s");
+    $role_id = 2; // Default role_id for new users
 
     // Check if user has confirmed terms
     if (!isset($_POST['usercheck'])) {
@@ -36,15 +37,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
         // Start the transaction
         $conn->begin_transaction();
 
-        // Insert into the user table
-        $sql_user = "INSERT INTO users (username, email, password, created_at, updated_at) VALUES (?, ?, ?, ?, ?)";
+        // Insert into the user table with role_id
+        $sql_user = "INSERT INTO users (username, email, password, role_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
         $stmt_user = $conn->prepare($sql_user);
         if (!$stmt_user) {
             throw new Exception("Failed to prepare user statement: " . $conn->error);
         }
 
         // Bind parameters and execute user statement
-        $stmt_user->bind_param("sssss", $username, $useremail, $userpass, $createdAt, $updatedAt);
+        $stmt_user->bind_param("ssssss", $username, $useremail, $userpass, $role_id, $createdAt, $updatedAt);
         if ($stmt_user->execute()) {
             // Get the user_id of the newly created user
             $user_id = $stmt_user->insert_id;
@@ -62,18 +63,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                 // Commit transaction if both inserts were successful
                 $conn->commit();
                 $_SESSION['message'][] = array("type" => "", "content" => "Sign UP successful!");
-                header("Location: complete-profile.php");
+                header("Location: login.php");
                 exit();
             } else {
                 throw new Exception("Failed to save profile data: " . $stmt_profile->error);
-                exit();
             }
 
             // Close the profile statement
             $stmt_profile->close();
         } else {
             throw new Exception("Failed to save user data: " . $stmt_user->error);
-            exit();
         }
 
         // Close the user statement
@@ -84,7 +83,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
 
         // Store error message in session
         $_SESSION['message'][] = array("type" => "error", "content" => "Error: " . $e->getMessage());
-        exit();
     } finally {
         // Redirect to signup page
         header("location: signup.php");
