@@ -15,7 +15,7 @@
 </head>
 
 <body class="bg-light">
-    <?php include 'layouts/user_pannel/header.php'; ?>
+    <?php include 'userlayout/header.php'; ?>
 
     <div class="container-fluid p-5 pt-5 main">
         <div class="row">
@@ -326,7 +326,7 @@
             </div>
         </div>
     </div>
-    <?php include 'layouts/user_pannel/footer.php'; ?>
+    <?php include 'userlayout/footer.php'; ?>
 
     <script>
         document.querySelectorAll('.progress-circle').forEach(el => {
