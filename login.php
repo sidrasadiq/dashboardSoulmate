@@ -3,50 +3,57 @@ session_start();
 include 'layouts/config.php';
 include 'layouts/functions.php';
 
+// Check if the form was submitted via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
+    // Check for empty email or password
     if (empty($email) || empty($password)) {
-        $_SESSION['message'] = array("type" => "error", "content" => "Email and Password are required.");
+        $_SESSION['message'][] = ["type" => "danger", "content" => "Email and Password are required."];
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
     }
 
     try {
-        // Enable error reporting
+        // Enable error reporting for MySQL
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-        // Prepare the SQL statement
-        $stmt = mysqli_prepare($conn, "SELECT id, username, password, role_id FROM users WHERE email = ?");
+        // Create the SQL query with a JOIN to fetch the user and profile data
+        $sql = "SELECT u.id, u.username, u.password, u.role_id, p.first_name, p.last_name
+                FROM users u
+                JOIN profiles p ON u.id = p.user_id
+                WHERE u.email = ?";
+
+        // Prepare the statement using the MySQLi object-oriented approach
+        $stmt = $conn->prepare($sql);
         if ($stmt === false) {
-            throw new Exception("Prepare statement failed: " . mysqli_error($conn));
+            throw new Exception("Prepare statement failed: " . $conn->error);
         }
 
-        // Bind parameters
-        mysqli_stmt_bind_param($stmt, "s", $email);
+        // Bind the email parameter to the SQL statement
+        $stmt->bind_param("s", $email);
 
-        // Execute the statement
-        mysqli_stmt_execute($stmt);
+        // Execute the query
+        $stmt->execute();
 
-        // Bind the result
-        mysqli_stmt_bind_result($stmt, $id, $username, $hashed_password, $role);
+        // Bind the result variables to fetch the data
+        $stmt->bind_result($id, $username, $hashed_password, $role_id, $first_name, $last_name);
 
         // Fetch the result
-        if (mysqli_stmt_fetch($stmt)) {
-            // Verify the password
+        if ($stmt->fetch()) {
+            // Verify the password entered by the user
             if (password_verify($password, $hashed_password)) {
-                // if ($password === $hashed_password) {
-                // Store data in session variables
+                // Store user information in session variables
                 $_SESSION["loggedin"] = true;
                 $_SESSION["user_id"] = $id;
-                // $_SESSION["first_name"] = $first_name;
-                // $_SESSION["last_name"] = $last_name;
                 $_SESSION["username"] = $username;
-                $_SESSION["role_id"] = $role;
+                $_SESSION["role_id"] = $role_id;
                 $_SESSION["email"] = $email;
+                $_SESSION["first_name"] = $first_name;
+                $_SESSION["last_name"] = $last_name;
 
-                // Set success message
+                // Set success message in session
                 $_SESSION['message'][] = ["type" => "success", "content" => "Login successful!"];
                 header("Location: index.php");
                 exit();
@@ -60,21 +67,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: " . $_SERVER['PHP_SELF']);
             exit();
         }
+
+        // Close the statement
+        $stmt->close();
     } catch (Exception $e) {
+        // Catch any errors and store the error message in the session
         $_SESSION['message'][] = ["type" => "danger", "content" => "Error: " . $e->getMessage()];
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
-    } finally {
-        // Close the statement and the connection
-        if (isset($stmt)) {
-            mysqli_stmt_close($stmt);
-        }
-        // if (isset($conn)) {
-        //     mysqli_close($conn);
-        // }
     }
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 

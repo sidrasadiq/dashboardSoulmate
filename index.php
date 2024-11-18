@@ -1,7 +1,8 @@
 <?php
-include 'layouts/session.php';
-include 'layouts/config.php';
-include 'layouts/functions.php';
+// include 'layouts/session.php';
+// include 'layouts/config.php';
+// include 'layouts/functions.php';
+session_start();
 
 // Check if the user is logged in and role_id is set in session
 if (!isset($_SESSION['role_id'])) {
@@ -14,11 +15,13 @@ try {
     // Redirect based on role ID
     switch ($_SESSION['role_id']) {
         case 1: // Admin role
-            header("location: admin-dashboard.php");
+            // header("location: admin-dashboard.php");
+            include 'admin-dashboard.php';
             break;
 
         case 2: // User role
-            header("location: user-dashboard.php");
+            // header("location: user-dashboard.php");
+            include 'user-dashboard.php';
             break;
 
         default: // Invalid role, redirect to logout
