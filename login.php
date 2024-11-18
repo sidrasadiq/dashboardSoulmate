@@ -3,12 +3,10 @@ session_start();
 include 'layouts/config.php';
 include 'layouts/functions.php';
 
-// Check if the form was submitted via POST
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    // Check for empty email or password
     if (empty($email) || empty($password)) {
         $_SESSION['message'][] = ["type" => "danger", "content" => "Email and Password are required."];
         header("Location: " . $_SERVER['PHP_SELF']);
@@ -16,45 +14,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     try {
-        // Enable error reporting for MySQL
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-        // Create the SQL query with a JOIN to fetch the user and profile data
-        $sql = "SELECT u.id, u.username, u.password, u.role_id, p.first_name, p.last_name
-                FROM users u
-                JOIN profiles p ON u.id = p.user_id
-                WHERE u.email = ?";
+        // Use a simple query for now to debug
+        $sql = "SELECT u.id, u.username, u.password, u.role_id, 
+                       COALESCE(p.first_name, 'Soulmate') AS first_name, 
+                       COALESCE(p.last_name, 'User') AS last_name
+                FROM users u 
+                LEFT JOIN profiles p ON u.id = p.user_id
+                WHERE email = ? 
+                AND is_active = 1;";
 
-        // Prepare the statement using the MySQLi object-oriented approach
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {
             throw new Exception("Prepare statement failed: " . $conn->error);
         }
 
-        // Bind the email parameter to the SQL statement
         $stmt->bind_param("s", $email);
-
-        // Execute the query
         $stmt->execute();
-
-        // Bind the result variables to fetch the data
         $stmt->bind_result($id, $username, $hashed_password, $role_id, $first_name, $last_name);
 
-        // Fetch the result
         if ($stmt->fetch()) {
-            // Verify the password entered by the user
             if (password_verify($password, $hashed_password)) {
-                // Store user information in session variables
                 $_SESSION["loggedin"] = true;
                 $_SESSION["user_id"] = $id;
                 $_SESSION["username"] = $username;
                 $_SESSION["role_id"] = $role_id;
                 $_SESSION["email"] = $email;
-                $_SESSION["first_name"] = $first_name;
-                $_SESSION["last_name"] = $last_name;
+                $_SESSION["first_name"] = $first_name ?? "Soulmate User";
+                $_SESSION["last_name"] = $last_name ?? "User";
 
-                // Set success message in session
-                $_SESSION['message'][] = ["type" => "success", "content" => "Login successful!"];
                 header("Location: index.php");
                 exit();
             } else {
@@ -67,16 +56,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             header("Location: " . $_SERVER['PHP_SELF']);
             exit();
         }
-
-        // Close the statement
-        $stmt->close();
     } catch (Exception $e) {
-        // Catch any errors and store the error message in the session
         $_SESSION['message'][] = ["type" => "danger", "content" => "Error: " . $e->getMessage()];
         header("Location: " . $_SERVER['PHP_SELF']);
         exit();
+    } finally {
+        if (isset($stmt)) {
+            $stmt->close();
+        }
     }
 }
+
 ?>
 
 <!DOCTYPE html>

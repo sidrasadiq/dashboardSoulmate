@@ -346,7 +346,7 @@
                     </span>
                     <span class="d-lg-flex flex-column gap-1 d-none">
                         <h5 class="my-0"><?php echo $_SESSION['first_name'] . " " . $_SESSION['last_name']; ?></h5>
-                        <h6 class="my-0 fw-normal">Founder</h6>
+                        <h6 class="my-0 fw-normal"><?php echo rowInfo($conn, "roles", "role_name", $_SESSION["role_id"]); ?></h6>
                     </span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated profile-dropdown">
