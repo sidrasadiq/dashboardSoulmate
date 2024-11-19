@@ -19,7 +19,7 @@
                  <i class="bi bi-globe me-3"></i>
                  <div class="dropdown">
                      <a href="#" class="d-block text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                         <img src="https://github.com/mdo.png" alt="User" width="32" height="32" class="rounded-circle">
+                         <img src="uploads/<?php echo $_SESSION['profile_picture']; ?>" alt="User" width="32" height="32" class="rounded-circle">
                      </a>
                      <ul class="dropdown-menu dropdown-menu-end text-small">
                          <li><a class="dropdown-item" href="#">Make The First Move</a></li>

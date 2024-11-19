@@ -62,6 +62,11 @@ if (isset($_SESSION['user_id'])) {
 
         // Close the statement
         $stmtUser->close();
+
+        $_SESSION['first_name'] = isset($profile['first_name']) ? $profile['first_name'] : 'No Set';
+        $_SESSION['last_name'] = isset($profile['last_name']) ? $profile['last_name'] : '';
+        $_SESSION['username'] = isset($profile['username']) ? $profile['username'] : '';
+        $_SESSION['profile_picture'] = isset($profile['profile_picture']) ? $profile['profile_picture'] : '';
     } catch (Exception $e) {
         // Handle exceptions and set the session message
         $_SESSION['message'] = ['type' => 'error', 'content' => $e->getMessage()];
@@ -121,7 +126,7 @@ if (isset($_SESSION['user_id'])) {
                         <div class="col-xl-4 col-lg-5">
                             <div class="card text-center border-0">
                                 <div class="card-body">
-                                    <img src="uploads/<?php echo htmlspecialchars($profile['profile_picture']); ?>"
+                                    <img src="uploads/<?php echo $_SESSION['profile_picture']; ?>"
                                         class="avatar-lg img-thumbnail custom-avatar"
                                         alt="profile-image">
                                     <!-- <img src="assets/images/profile.jpeg" class=" avatar-lg img-thumbnail" alt="profile-image"> -->
@@ -218,14 +223,9 @@ if (isset($_SESSION['user_id'])) {
                                         <tr>
                                             <td class="w-25 text-muted text-start">Age:</td>
                                             <td class="w-50 text-muted text-start"><?php
-                                                                                    if (!empty($profile['date_of_birth'])) {
-                                                                                        $dob = new DateTime($profile['date_of_birth']); // Convert to DateTime object
-                                                                                        $today = new DateTime(); // Get today's date
-                                                                                        $age = $today->diff($dob)->y; // Calculate age in years
-                                                                                        echo htmlspecialchars($age . ' years'); // Display age
-                                                                                    } else {
-                                                                                        echo 'No Answer'; // Handle missing date_of_birth
-                                                                                    }
+                                                                                    echo !empty($profile['date_of_birth'])
+                                                                                        ? htmlspecialchars((new DateTime())->diff(new DateTime($profile['date_of_birth']))->y . ' years')
+                                                                                        : 'No Answer';
                                                                                     ?></td>
                                             <td class="w-25 text-muted text-start">
                                                 <strong><?php echo htmlspecialchars($profile['prefer_age_from'] ?? '') . '-' . htmlspecialchars($profile['prefer_age_to'] ?? ''); ?></strong>

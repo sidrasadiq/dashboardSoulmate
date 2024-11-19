@@ -1,6 +1,87 @@
-<?php include 'layouts/session.php'; ?>
-<?php include 'layouts/main.php'; ?>
-<?php include 'layouts/functions.php'; ?>
+<?php
+
+// Include required files
+include 'layouts/config.php';
+include 'layouts/session.php';  // Ensure session_start() is called here
+include 'layouts/main.php';
+include 'layouts/functions.php';
+
+// Initialize $profile as an empty array
+$profile = [];
+
+// Check if user is logged in by verifying session user_id
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id']; // Get the user ID from the session
+
+    // Ensure the database connection is established
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+
+    // Initialize arrays for countries and cities
+    $countries = [];
+    $cities = [];
+    $states = [];
+
+    try {
+        // Start a transaction for data fetching
+        $conn->begin_transaction();
+
+        // Fetch countries
+        $queryCountries = "SELECT id, country_name FROM countries ORDER BY id ASC;";
+        $stmtCountries = $conn->prepare($queryCountries);
+        $stmtCountries->execute();
+        $resultCountries = $stmtCountries->get_result();
+
+        // Check if countries exist
+        while ($row = $resultCountries->fetch_assoc()) {
+            $countries[] = $row;
+        }
+
+        // Fetch cities
+        $queryCities = "SELECT id, city_name FROM cities ORDER BY id ASC;";
+        $stmtCities = $conn->prepare($queryCities);
+        $stmtCities->execute();
+        $resultCities = $stmtCities->get_result();
+
+        // Check if cities exist
+        while ($row = $resultCities->fetch_assoc()) {
+            $cities[] = $row;
+        }
+        // Fetch states
+        $queryStates = "SELECT id, state_name FROM states ORDER BY id ASC;";
+        $stmtStates = $conn->prepare($queryStates);
+        $stmtStates->execute();
+        $resultStates  = $stmtStates->get_result();
+
+        // Check if cities exist
+        while ($row = $resultStates->fetch_assoc()) {
+            $states[] = $row;
+        }
+
+        // Commit transaction
+        $conn->commit();
+    } catch (Exception $e) {
+        // Rollback the transaction on error
+        $conn->rollback();
+        $_SESSION['message'][] = array("type" => "error", "content" => "Error: " . $e->getMessage());
+        header("location: complete-profile.php");
+        exit();
+    }
+} else {
+    // Handle case when user is not logged in
+    echo "User is not logged in.";
+}
+
+// At this point, the countries and cities arrays are populated and can be used for displaying on the page
+
+?>
+
+
+
+
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,21 +93,44 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
     <title>User Panel</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .cardby {
+            min-height: 200px;
+            /* Ensures uniform card height */
+            padding: 20px;
+            /* Light background for better contrast */
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .card-text {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #6c757d;
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body class="bg-light ">
     <?php include 'userlayout/header.php'; ?>
 
     <div class="container-fluid p-5 pt-5 main">
         <div class="row">
             <div class="col-md-3 p-md-1 mb-md-3 ">
                 <a href="#" class="d-block text-decoration-none ">
-                    <img src="assets/images/profile.jpeg" alt="User" width="132" height="132" class="rounded-circle ">
+                    <img src="uploads/<?php echo $_SESSION['profile_picture']; ?>" alt="User" width="132" height="132" class="rounded-circle ">
                 </a>
             </div>
 
             <div class="col-md-4 prof-con mt-md-3 mt-sm-4">
-                <h5 class="mt-4">Hi Abc</h5>
+
+                <h5 class="mt-4">
+                    <?php echo $_SESSION['username']; ?>
+                </h5>
                 <button type="submit " class="btn btn-comp-prof"> Next Step: Complete your personality profile</button>
                 <p class="mt-2">Learn about membership features</p>
                 <div class=" emoji">
@@ -108,8 +212,9 @@
                             <label for="country" class="fw-bold">Country</label>
                             <select class="form-select  custom-border" id="country" aria-label="Default select example">
                                 <option value="any" selected>Any</option>
-                                <option value="canada">Canada</option>
-                                <option value="egypt">Egypt</option>
+                                <?php foreach ($countries as $country): ?>
+                                    <option value="<?php echo $country['id']; ?>"><?php echo $country['country_name']; ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
@@ -118,8 +223,9 @@
                             <label for="state" class="fw-bold">State/Province</label>
                             <select class="form-select  custom-border" id="state" aria-label="Default select example">
                                 <option value="any" selected>Any</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                                <?php foreach ($states as $state): ?>
+                                    <option value="<?php echo $state['id']; ?>"><?php echo $state['state_name']; ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
@@ -128,8 +234,9 @@
                             <label for="city" class="fw-bold">City</label>
                             <select class="form-select custom-border" id="city" aria-label="Default select example">
                                 <option value="any" selected>Any</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
+                                <?php foreach ($cities as $city): ?>
+                                    <option value="<?php echo $city['id']; ?>"><?php echo $city['city_name']; ?></option>
+                                <?php endforeach; ?>
                             </select>
                         </div>
 
@@ -149,183 +256,99 @@
         </form>
     </div>
 
-    <!-- searcch section end -->
+    <!-- Search Section Start -->
     <div class="container mt-5">
         <div class="card border-0 bg-light">
-            <div class="card-body">
+            <div class="card-body cardby">
                 <div class="row">
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <?php
+                    // Query to fetch data
+                    $query = "
+                SELECT 
+                    profiles.*, 
+                    countries.country_name, 
+                    cities.city_name,
+                    users.username,
+                    users.email,
+                    users.password,
+                    nationality.nationality_name,
+                    religion.religion_name,
+                    qualifications.qualification_name
+                FROM 
+                    profiles
+                JOIN users ON profiles.user_id = users.id
+                LEFT JOIN countries ON profiles.country_id = countries.id
+                LEFT JOIN cities ON profiles.city_id = cities.id
+                LEFT JOIN nationality ON profiles.nationality_id = nationality.id
+                LEFT JOIN religion ON profiles.religion_id = religion.id
+                LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
+                WHERE users.id != $userId";
 
+
+                    $result = mysqli_query($conn, $query);
+
+                    // Check if results exist
+                    if (mysqli_num_rows($result) > 0) {
+                        while ($row = mysqli_fetch_assoc($result)) {
+
+                    ?>
+                            <div class="col-md-4 mb-4">
+                                <div class="card h-100 shadow-sm border-0">
+                                    <div class="row g-0 h-100">
+                                        <div class="col-md-5">
+                                            <!-- Adjust image styles -->
+                                            <img src="uploads/<?php echo htmlspecialchars($row['profile_picture'] ?? 'default.jpg'); ?>"
+                                                class="img-fluid rounded-start w-100 h-100"
+                                                style="object-fit: cover; border-radius: 8px 0 0 8px;"
+                                                alt="<?php echo htmlspecialchars($row['username']); ?>">
+                                        </div>
+                                        <div class="col-md-7">
+                                            <div class="card-body cardby d-flex flex-column justify-content-between">
+                                                <div>
+                                                    <h4 class="card-title"><?php echo htmlspecialchars($row['username']); ?></h4>
+                                                    <p class="card-text text-muted">
+                                                        <?php
+                                                        echo isset($row['date_of_birth']) && !empty($row['date_of_birth'])
+                                                            ? htmlspecialchars((new DateTime())->diff(new DateTime($row['date_of_birth']))->y . " . " . $row['city_name'] . ", " . $row['country_name'])
+                                                            : 'No data available';
+                                                        ?>
+                                                    </p>
+                                                    <h5 class="card-text"><?php echo htmlspecialchars($row['religion_name']); ?></h5>
+                                                    <p class="card-text">
+                                                        <small class="text-muted">Seeking:
+                                                            <?php echo htmlspecialchars($row['looking_for'] . " " . $row['prefer_age_from'] . "-" . $row['prefer_age_to']); ?>
+                                                        </small>
+                                                    </p>
+                                                </div>
+                                                <p class="card-text">
+                                                    <strong>
+                                                        <small class="text-muted"><?php echo htmlspecialchars($row['bio']); ?></small>
+                                                    </strong>
+                                                </p>
+                                                <div class="">
+                                                    <i class="bi bi-heart p-1 text-muted"></i>
+                                                    <i class="bi bi-chat p-1 text-muted"></i>
+                                                    <i class="bi bi-gift p-1 text-muted"></i>
+                                                    <i class="bi bi-camera p-1 text-muted"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    <?php
+                        }
+                    } else {
+                        echo '<p>No profiles found.</p>';
+                    }
+                    ?>
                 </div>
-                <!-- second row -->
-
-
-                <div class="row">
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- second row end -->
-
-                <!-- third row start -->
-                <div class="row">
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--  -->
-                    <div class="col-md-4">
-                        <div class="card mb-3" style="max-width: 540px;">
-                            <div class="row g-0">
-                                <div class="col-md-4">
-                                    <img src="..." class="img-fluid rounded-start" alt="...">
-                                </div>
-                                <div class="col-md-8">
-                                    <div class="card-body">
-                                        <h5 class="card-title">Card title</h5>
-                                        <p class="card-text">This is a wider card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
-                                        <p class="card-text"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <!-- third row end -->
             </div>
         </div>
     </div>
+    <!-- Search Section End -->
+
+
     <?php include 'userlayout/footer.php'; ?>
 
     <script>
