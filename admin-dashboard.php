@@ -1,4 +1,5 @@
 <?php include 'layouts/session.php'; ?>
+<?php include 'layouts/config.php'; ?>
 <?php include 'layouts/main.php'; ?>
 <?php include 'layouts/functions.php'; ?>
 
