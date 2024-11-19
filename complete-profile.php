@@ -9,21 +9,26 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
-
-// Retrieve user_id from the session
 $userId = $_SESSION['user_id'];
-
-// Check if the user has already completed their profile
-$profileCheckQuery = "SELECT * FROM profiles WHERE user_id = ?";
+// Check if the user profile is incomplete
+$profileCheckQuery = "SELECT * FROM profiles WHERE user_id = ? AND (prefer_age_from IS NULL OR prefer_age_to IS NULL OR country_id IS NULL 
+OR city_id IS NULL OR relationship_looking IS NULL OR ethnicity IS NULL OR beliefs IS NULL OR drink_alcohol IS NULL OR smoking IS NULL OR children IS NULL 
+OR marital_status IS NULL OR my_appearance IS NULL OR body_type IS NULL OR profile_picture IS NULL)";
 $stmtProfileCheck = $conn->prepare($profileCheckQuery);
+if (!$stmtProfileCheck) {
+    throw new Exception("Prepare statement failed: " . $conn->error);
+}
+
 $stmtProfileCheck->bind_param("i", $userId);
 $stmtProfileCheck->execute();
 $profileResult = $stmtProfileCheck->get_result();
 
-// If a profile already exists, redirect to the index page
 if ($profileResult->num_rows > 0) {
-    $_SESSION['message'][] = array("type" => "info", "content" => "You have already completed your profile.");
-    header("Location: user_index.php?user_id=$userId");
+    // Profile is incomplete; allow the user to complete it
+    // Show the form (do not redirect to the same page)
+} else {
+    // If profile is complete, proceed to the user dashboard
+    header("Location: user_index.php");
     exit();
 }
 
@@ -73,6 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
     $city = isset($_POST['city']) ? intval($_POST['city']) : null;
     $relationshipLooking = isset($_POST['relationshipLooking']) ? (is_array($_POST['relationshipLooking']) ? implode(", ", $_POST['relationshipLooking']) : $_POST['relationshipLooking']) : null;
     $ethnicity = isset($_POST['ethnicity']) ? $_POST['ethnicity'] : null;
+    $beliefs = isset($_POST['beliefs']) ? $_POST['beliefs'] : null;
     $drinkAlcohol = isset($_POST['drinkAlcohol']) ? $_POST['drinkAlcohol'] : 'No'; // Set default to 'No' if not selected
     $smoking = isset($_POST['smoking']) ? $_POST['smoking'] : 'No'; // Set default to 'No'
     $children = isset($_POST['children']) ? $_POST['children'] : 'No'; // Set default to 'No'
@@ -100,34 +106,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
             }
         }
 
-        // Insert profile data into the database
-        $stmt = $conn->prepare("INSERT INTO profiles
-            ( prefer_age_from, prefer_age_to, country_id, city_id, relationship_looking, ethnicity, 
-            drink_alcohol, smoking, children, marital_status, my_appearance, body_type, profile_picture)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        // Update existing profile
+        $sql_update_profile = "UPDATE profiles 
+   SET prefer_age_from = ?, prefer_age_to = ?, country_id = ?, city_id = ?, 
+       relationship_looking = ?, ethnicity = ?, beliefs = ?, drink_alcohol = ?, smoking = ?, 
+       children = ?, marital_status = ?, my_appearance = ?, body_type = ?, profile_picture = ? 
+   WHERE user_id = ?";
 
-        // Bind user_id (from session) with the other fields
-        $stmt->bind_param(
-            "iiiisssssssss", // Updated to 14 placeholders to match the parameters
-            // Insert user_id as a foreign key
+
+        $stmt_update = $conn->prepare($sql_update_profile);
+        if (!$stmt_update) {
+            throw new Exception("Failed to prepare update statement: " . $conn->error);
+        }
+
+        // Bind parameters
+        $stmt_update->bind_param(
+            "iiiissssssssssi",
             $ageFrom,
             $ageTo,
             $country,
             $city,
             $relationshipLooking,
             $ethnicity,
+            $beliefs,
             $drinkAlcohol,
             $smoking,
             $children,
             $maritalStatus,
             $appearance,
             $bodyType,
-            $photo
+            $photo,
+            $userId
         );
 
-        if (!$stmt->execute()) {
-            throw new Exception("Failed to insert profile data: " . $stmt->error);
+        // Execute and handle errors
+        if (!$stmt_update->execute()) {
+            throw new Exception("Failed to update profile: " . $stmt_update->error);
         }
+
 
         // Commit the transaction after successful insert
         $conn->commit();
