@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 // Include required files
 include 'layouts/config.php';
@@ -18,7 +19,7 @@ if (isset($_SESSION['user_id'])) {
         die("Connection failed: " . mysqli_connect_error());
     }
 
-    // Initialize arrays for countries and cities
+    // Initialize arrays for countries, cities, and states
     $countries = [];
     $cities = [];
     $states = [];
@@ -33,7 +34,6 @@ if (isset($_SESSION['user_id'])) {
         $stmtCountries->execute();
         $resultCountries = $stmtCountries->get_result();
 
-        // Check if countries exist
         while ($row = $resultCountries->fetch_assoc()) {
             $countries[] = $row;
         }
@@ -44,17 +44,16 @@ if (isset($_SESSION['user_id'])) {
         $stmtCities->execute();
         $resultCities = $stmtCities->get_result();
 
-        // Check if cities exist
         while ($row = $resultCities->fetch_assoc()) {
             $cities[] = $row;
         }
+
         // Fetch states
         $queryStates = "SELECT id, state_name FROM states ORDER BY id ASC;";
         $stmtStates = $conn->prepare($queryStates);
         $stmtStates->execute();
-        $resultStates  = $stmtStates->get_result();
+        $resultStates = $stmtStates->get_result();
 
-        // Check if cities exist
         while ($row = $resultStates->fetch_assoc()) {
             $states[] = $row;
         }
@@ -69,12 +68,8 @@ if (isset($_SESSION['user_id'])) {
         exit();
     }
 } else {
-    // Handle case when user is not logged in
     echo "User is not logged in.";
 }
-
-// At this point, the countries and cities arrays are populated and can be used for displaying on the page
-
 ?>
 
 
@@ -122,7 +117,7 @@ if (isset($_SESSION['user_id'])) {
         <div class="row">
             <div class="col-md-3 p-md-1 mb-md-3 ">
                 <a href="#" class="d-block text-decoration-none ">
-                    <img src="uploads/<?php echo $_SESSION['profile_picture']; ?>" alt="User" width="132" height="132" class="rounded-circle ">
+                    <img src="<?php echo $_SESSION['profile_picture']; ?>" alt="User" width="132" height="132" class="rounded-circle ">
                 </a>
             </div>
 
@@ -183,34 +178,86 @@ if (isset($_SESSION['user_id'])) {
     </div>
     <!-- search section start -->
     <div class="container-fluid">
-        <form action="">
+        <form action="search-result.php" method="POST">
+
             <div class="card search-card border-0 shadow">
                 <div class="card-body">
                     <div class="row align-items-center">
                         <!-- Seeking -->
                         <div class="col-md-2">
                             <label for="seeking" class="fw-bold">Seeking</label>
-                            <select class="form-select  custom-border" id="seeking" aria-label="Default select example">
-                                <option value="male" selected>Male</option>
+                            <select class="form-select  custom-border" id="seeking" aria-label="Default select example" name="seeking">
+                                <option value="male">Male</option>
                                 <option value="female">Female</option>
-                                <option value="any">Any</option>
+                                <option value="any" selected>Any</option>
                             </select>
                         </div>
 
                         <!-- Age -->
                         <div class="col-md-1">
                             <label for="age" class="fw-bold">Age</label>
-                            <select class="form-select  custom-border" id="age" aria-label="Default select example">
-                                <option value="1">18</option>
-                                <option value="2" selected>19</option>
-                                <option value="3">20</option>
+                            <select class="form-select  custom-border" id="age" aria-label="Default select example" name="age">
+                                <option value="" selected></option>
+                                <option value="18">18</option>
+                                <option value="19">19</option>
+                                <option value="20">20</option>
+                                <option value="21">21</option>
+                                <option value="22">22</option>
+                                <option value="23">23</option>
+                                <option value="24">24</option>
+                                <option value="25">25</option>
+                                <option value="26">26</option>
+                                <option value="27">27</option>
+                                <option value="28">28</option>
+                                <option value="29">29</option>
+                                <option value="30">30</option>
+                                <option value="31">31</option>
+                                <option value="32">32</option>
+                                <option value="33">33</option>
+                                <option value="34">34</option>
+                                <option value="35">35</option>
+                                <option value="36">36</option>
+                                <option value="37">37</option>
+                                <option value="38">38</option>
+                                <option value="39">39</option>
+                                <option value="40">40</option>
+                                <option value="41">41</option>
+                                <option value="42">42</option>
+                                <option value="43">43</option>
+                                <option value="44">44</option>
+                                <option value="45">45</option>
+                                <option value="46">46</option>
+                                <option value="47">47</option>
+                                = <option value="48">48</option>
+                                <option value="49">49</option>
+                                <option value="50">50</option>
+                                <option value="51">51</option>
+                                <option value="52">52</option>
+                                <option value="53">53</option>
+                                <option value="54">54</option>
+                                <option value="55">55</option>
+                                <option value="56">56</option>
+                                <option value="57">57</option>
+                                <option value="58">58</option>
+                                <option value="59">59</option>
+                                <option value="60">60</option>
+                                <option value="61">61</option>
+                                <option value="62">62</option>
+                                <option value="63">63</option>
+                                <option value="64">64</option>
+                                <option value="65">65</option>
+                                <option value="66">66</option>
+                                <option value="67">67</option>
+                                <option value="68">68</option>
+                                <option value="69">69</option>
+                                <option value="70">70 </option>
                             </select>
                         </div>
 
                         <!-- Country -->
                         <div class="col-md-2">
                             <label for="country" class="fw-bold">Country</label>
-                            <select class="form-select  custom-border" id="country" aria-label="Default select example">
+                            <select class="form-select custom-border" id="country" name="country">
                                 <option value="any" selected>Any</option>
                                 <?php foreach ($countries as $country): ?>
                                     <option value="<?php echo $country['id']; ?>"><?php echo $country['country_name']; ?></option>
@@ -221,34 +268,34 @@ if (isset($_SESSION['user_id'])) {
                         <!-- State/Province -->
                         <div class="col-md-2">
                             <label for="state" class="fw-bold">State/Province</label>
-                            <select class="form-select  custom-border" id="state" aria-label="Default select example">
+                            <select class="form-select  custom-border" id="state" aria-label="Default select example" name="state">
                                 <option value="any" selected>Any</option>
                                 <?php foreach ($states as $state): ?>
                                     <option value="<?php echo $state['id']; ?>"><?php echo $state['state_name']; ?></option>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>>
                             </select>
                         </div>
 
                         <!-- City -->
                         <div class="col-md-2">
                             <label for="city" class="fw-bold">City</label>
-                            <select class="form-select custom-border" id="city" aria-label="Default select example">
+                            <select class="form-select custom-border" id="city" aria-label="Default select example" name="city">
                                 <option value="any" selected>Any</option>
                                 <?php foreach ($cities as $city): ?>
                                     <option value="<?php echo $city['id']; ?>"><?php echo $city['city_name']; ?></option>
-                                <?php endforeach; ?>
+                                    <?php endforeach; ?>>
                             </select>
                         </div>
 
                         <!-- Within -->
                         <div class="col-md-2 ">
                             <label for="within" class="fw-bold">Within</label>
-                            <input type="text" class="form-control  custom-border " id="within" placeholder="   - km">
+                            <input type="text" class="form-control  custom-border " id="within" placeholder="   - km" name="within">
                         </div>
 
                         <!-- Search Button -->
                         <div class="col-md-1 ">
-                            <button type="submit" class="btn btn-search w-100 shadow ">Search</button>
+                            <button type="submit" name="submit" value="submit" class="btn btn-search w-100 shadow ">Search</button>
                         </div>
                     </div>
                 </div>
