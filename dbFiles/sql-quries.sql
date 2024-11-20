@@ -187,3 +187,16 @@ ADD COLUMN children ENUM('yes', 'not sure', 'no') NOT NULL,
 ADD COLUMN marital_status ENUM('single', 'separated', 'widowed', 'divorced', 'other', 'prefer not to say') NOT NULL,
 ADD COLUMN my_appearance ENUM('below average', 'average', 'attractive', 'very attractive') NOT NULL,
 ADD COLUMN body_type ENUM('petite', 'slim', 'average', 'few extra pounds', 'full figured', 'large and lovely') NOT NULL;
+
+-- Steates table
+CREATE TABLE states (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    state_name VARCHAR(100) NOT NULL,
+    state_abbreviation VARCHAR(2) NOT NULL,
+      country_id INT,
+    is_active 	tinyint(1) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_by TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_by TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
