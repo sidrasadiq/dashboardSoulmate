@@ -21,7 +21,7 @@ try {
 
         case 2: // User role
             // header("location: user-dashboard.php");
-            include 'user-dashboard.php';
+            include 'user_index.php';
             break;
 
         default: // Invalid role, redirect to logout
