@@ -62,6 +62,11 @@ if (isset($_SESSION['user_id'])) {
 
         // Close the statement
         $stmtUser->close();
+
+        $_SESSION['first_name'] = isset($profile['first_name']) ? $profile['first_name'] : 'No Set';
+        $_SESSION['last_name'] = isset($profile['last_name']) ? $profile['last_name'] : '';
+        $_SESSION['username'] = isset($profile['username']) ? $profile['username'] : '';
+        $_SESSION['profile_picture'] = isset($profile['profile_picture']) ? $profile['profile_picture'] : '';
     } catch (Exception $e) {
         // Handle exceptions and set the session message
         $_SESSION['message'] = ['type' => 'error', 'content' => $e->getMessage()];
@@ -90,7 +95,21 @@ if (isset($_SESSION['user_id'])) {
     <title>Show Profile Panel</title>
     <style>
         .customclr {
-            color: #4CA8F0;
+            color: #4CA8F0 !important;
+        }
+
+        .btn-pro {
+            background-color: #E9E9E9;
+        }
+
+        .btn-pro:hover {
+            background-color: #E9E9E9;
+
+        }
+
+        .custom-avatar {
+            width: 350px;
+            height: 400px;
         }
     </style>
 </head>
@@ -107,7 +126,10 @@ if (isset($_SESSION['user_id'])) {
                         <div class="col-xl-4 col-lg-5">
                             <div class="card text-center border-0">
                                 <div class="card-body">
-                                    <img src="<?php echo htmlspecialchars($profile['profile_picture']); ?>" class="avatar-lg img-thumbnail" alt="profile-image">
+                                    <img src="uploads/<?php echo $_SESSION['profile_picture']; ?>"
+                                        class="avatar-lg img-thumbnail custom-avatar"
+                                        alt="profile-image">
+                                    <!-- <img src="assets/images/profile.jpeg" class=" avatar-lg img-thumbnail" alt="profile-image"> -->
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
                         </div> <!-- end col-->
@@ -122,7 +144,7 @@ if (isset($_SESSION['user_id'])) {
                                     <div class="text-start mt-3">
                                         <p class="text-muted mb-2"><strong>Location:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['city_name'] ?? 'Unknown') . ', ' . htmlspecialchars($profile['country_name'] ?? 'Unknown'); ?></span></p>
                                         <p class="text-muted mb-1"><strong>Gender:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['gender'] ?? 'N/A'); ?> / <strong>ID: <?php echo htmlspecialchars($userId ?? 'Not Set'); ?></strong></span></p>
-                                        <p class="text-muted mb-1"><strong>Seeking:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['looking_for'] ?? 'Any') . '/' . htmlspecialchars($profile['prefer_age_from'] ?? '') . '-' . htmlspecialchars($profile['prefer_age_to'] ?? '') . ' For: ' . htmlspecialchars($profile['relationship_looking'] ?? ''); ?></span> </p>
+                                        <p class="text-muted mb-1"><strong>Seeking:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['looking_for'] ?? 'No Answer') . '/' . htmlspecialchars($profile['prefer_age_from'] ?? '') . '-' . htmlspecialchars($profile['prefer_age_to'] ?? '') . ' For: ' . htmlspecialchars($profile['relationship_looking'] ?? ''); ?></span> </p>
                                         <p class="text-muted mb-1"><strong>Last Active:</strong> <span class="ms-2">0 min ago</span></p>
                                     </div>
                                     <hr>
@@ -131,7 +153,12 @@ if (isset($_SESSION['user_id'])) {
                                         <tr>
                                             <th class="text-muted mb-1">Overview</th>
                                             <th class="text-muted mb-1"><?php echo htmlspecialchars($profile['first_name'] ?? 'N/A'); ?></th>
-                                            <th class="text-muted mb-1">She's Looking For</th>
+                                            <th class="text-muted mb-1">
+                                                <?php
+                                                echo ($profile['gender'] ?? '') === 'female' ? "She's Looking For" : "He's Looking For";
+                                                ?>
+                                            </th>
+
                                         </tr>
                                         <tr>
                                             <td class="text-muted mb-1">Education:</td>
@@ -181,34 +208,38 @@ if (isset($_SESSION['user_id'])) {
                                 <table class="table table-striped table-hover mt-5">
                                     <thead>
                                         <tr>
-
-                                            <th class=" customclr text-muted mb-1 ">Basic</th>
-                                            <th class="customclr text-muted mb-1 "><?php echo htmlspecialchars($profile['first_name'] ?? 'N/A'); ?></th>
-                                            <th class="customclrr text-muted mb-1 "> Looking For</th>
+                                            <th class="w-25 customclr text-muted mb-1 text-start">Basic</th>
+                                            <th class="w-50 customclr text-muted  mb-1 text-start"><?php echo htmlspecialchars($profile['first_name'] ?? 'N/A'); ?></th>
+                                            <th class="w-25 customclr text-muted mb-1 text-start">Looking For</th>
                                         </tr>
+
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="text-muted">Gender:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['gender'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['looking_for'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">Gender:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['gender'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start"><?php echo htmlspecialchars($profile['looking_for'] ?? 'No Answer'); ?></td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Age:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['date_of_birth'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">
+                                            <td class="w-25 text-muted text-start">Age:</td>
+                                            <td class="w-50 text-muted text-start"><?php
+                                                                                    echo !empty($profile['date_of_birth'])
+                                                                                        ? htmlspecialchars((new DateTime())->diff(new DateTime($profile['date_of_birth']))->y . ' years')
+                                                                                        : 'No Answer';
+                                                                                    ?></td>
+                                            <td class="w-25 text-muted text-start">
                                                 <strong><?php echo htmlspecialchars($profile['prefer_age_from'] ?? '') . '-' . htmlspecialchars($profile['prefer_age_to'] ?? ''); ?></strong>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Lives In:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['lives_in'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Lives In:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['lives_in'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Relocate:</td>
-                                            <td class="text-muted">Any</td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Relocate:</td>
+                                            <td class="w-50 text-muted text-start">No Answer</td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -219,28 +250,27 @@ if (isset($_SESSION['user_id'])) {
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover mt-5">
                                     <thead>
-
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="text-muted">Height:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['height'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Height:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['height'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Body Style:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['body_type'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Body Style:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['body_type'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Ethnicity:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['ethnicity'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Ethnicity:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['ethnicity'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Appearance:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['my_appearance'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Appearance:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['my_appearance'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -251,28 +281,27 @@ if (isset($_SESSION['user_id'])) {
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover mt-5">
                                     <thead>
-
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="text-muted">Drink:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['drink_alcohol'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Drink:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['drink_alcohol'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Smoke:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['smoke'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Smoke:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['smoke'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Marital Status:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['marital_status'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Marital Status:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['marital_status'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Want (more) children:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['children'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Want (more) children:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['children'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -283,23 +312,22 @@ if (isset($_SESSION['user_id'])) {
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover mt-5">
                                     <thead>
-
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td class="text-muted">Nationality:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['nationality_name'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Nationality:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['nationality_name'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Education:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['qualification_name'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Education:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['qualification_name'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
-                                            <td class="text-muted">Religion:</td>
-                                            <td class="text-muted"><?php echo htmlspecialchars($profile['religion_name'] ?? 'No Answer'); ?></td>
-                                            <td class="text-muted">Any</td>
+                                            <td class="w-25 text-muted text-start">Religion:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['religion_name'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -308,9 +336,13 @@ if (isset($_SESSION['user_id'])) {
                     </div>
                 </div>
 
-
             </div>
         </div>
+        <h5 class="customclr text-muted mt-5 text-start">Safety Tip - Always meet in a public place for your first date
+        </h5>
+        <p class=" text-muted mb-1 text-start">If you choose to have a face-to-face meeting with another member, always meet in a public place with many <br> people around. Organize your own transportation to and from the date and never agree to be picked up at <br> your home. Always tell someone in your family or a friend where you are going and when you will return and <br> stay connected with your cell phone switched on at all times.</p>
+        <button type="button" class="btn  btn-pro">For more safety tips click here</button>
+
     </div>
 
     <?php include 'userlayout/footer.php'; ?>
