@@ -3,6 +3,14 @@ session_start();
 include 'layouts/config.php';
 include 'layouts/functions.php';
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Load PHPMailer files
+require 'assets/vendor/PHPMailer/src/Exception.php';
+require 'assets/vendor/PHPMailer/src/PHPMailer.php';
+require 'assets/vendor/PHPMailer/src/SMTP.php';
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
     $password = trim($_POST['password']);
@@ -52,14 +60,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["first_name"] = $first_name ?? "Soulmate";
                 $_SESSION["last_name"] = $last_name ?? "User";
 
-                // Call the function to send a simple welcome email
-                $testEmailSent = sendTestEmail($email, $username);
+                // Send welcome email using PHPMailer
+                $emailSent = sendWelcomeEmail($email, $username);
 
-                // Add a success message based on email status
-                if ($testEmailSent === true) {
+                if ($emailSent === true) {
                     $_SESSION['message'][] = ["type" => "success", "content" => "Login successful! Welcome email sent."];
                 } else {
-                    $_SESSION['message'][] = ["type" => "warning", "content" => "Login successful, but failed to send welcome email: $testEmailSent"];
+                    $_SESSION['message'][] = ["type" => "warning", "content" => "Login successful, but failed to send welcome email: $emailSent"];
                 }
 
                 header("Location: index.php");
@@ -86,28 +93,50 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 /**
- * Function to send a simple welcome email
+ * Function to send a welcome email using PHPMailer
  */
-function sendTestEmail($to, $username)
+function sendWelcomeEmail($to, $username)
 {
-    // Use PHPMailer or simple mail() function
-    $subject = "Welcome to Soulmate!";
-    $message = "
-        <h1>Welcome, $username!</h1>
-        <p>We're glad to have you on Soulmate.</p>
-        <p>If you have any questions, feel free to reach out!</p>
-    ";
-    $headers = "From: Soulmate <no-reply@soulmate.com.pk>\r\n";
-    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+    global $mailHost, $mailUsername, $mailPassword, $mailPort; // Email configuration from `config.php`
 
-    // Use mail() function for simplicity
-    if (mail($to, $subject, $message, $headers)) {
+    require 'PHPMailer/PHPMailer.php';
+    require 'PHPMailer/SMTP.php';
+    require 'PHPMailer/Exception.php';
+
+    $mail = new PHPMailer(true);
+
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = $mailHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = $mailPort;
+
+        // Recipients
+        $mail->setFrom($mailUsername, 'Soulmate');
+        $mail->addAddress($to);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Welcome to Soulmate!';
+        $mail->Body = "
+            <h1>Welcome, $username!</h1>
+            <p>We're thrilled to have you join Soulmate.</p>
+            <p>If you have any questions, feel free to reach out!</p>
+        ";
+        $mail->AltBody = "Welcome, $username!\nWe're thrilled to have you join Soulmate.\nIf you have any questions, feel free to reach out!";
+
+        $mail->send();
         return true;
-    } else {
-        return "Failed to send email.";
+    } catch (Exception $e) {
+        return "Mailer Error: {$mail->ErrorInfo}";
     }
 }
 ?>
+
 
 
 
