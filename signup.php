@@ -75,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                 $conn->commit();
 
                 // Send verification email
-                $emailSent = sendVerificationEmail($useremail, $username, $verification_token);
+                $emailSent = sendVerificationEmail($mailHost, $mailUsername, $mailPassword, $mailPort, $useremail, $username, $verification_token);
                 if ($emailSent !== true) {
                     $_SESSION['message'][] = array("type" => "error", "content" => "Error sending verification email: $emailSent");
                 }

@@ -157,13 +157,8 @@ function rowInfo($conn, $tableName, $columnName, $id)
     }
 }
 
-function sendVerificationEmail($to, $username, $verificationToken)
+function sendVerificationEmail($mailHost, $mailUsername, $mailPassword, $mailPort, $to, $username, $verificationToken)
 {
-    // Email configuration
-    $mailHost = 'mail.soulmate.com.pk';
-    $mailUsername = 'admin@soulmate.com.pk';
-    $mailPassword = 'nX^B=[cJ];e;';
-    $mailPort = 465;
 
     // Create PHPMailer instance
     $mail = new PHPMailer(true);
