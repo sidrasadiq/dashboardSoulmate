@@ -52,6 +52,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION["first_name"] = $first_name ?? "Soulmate";
                 $_SESSION["last_name"] = $last_name ?? "User";
 
+                // Call the function to send a simple welcome email
+                $testEmailSent = sendTestEmail($email, $username);
+
+                // Add a success message based on email status
+                if ($testEmailSent === true) {
+                    $_SESSION['message'][] = ["type" => "success", "content" => "Login successful! Welcome email sent."];
+                } else {
+                    $_SESSION['message'][] = ["type" => "warning", "content" => "Login successful, but failed to send welcome email: $testEmailSent"];
+                }
+
                 header("Location: index.php");
                 exit();
             } else {
@@ -74,7 +84,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
+
+/**
+ * Function to send a simple welcome email
+ */
+function sendTestEmail($to, $username)
+{
+    // Use PHPMailer or simple mail() function
+    $subject = "Welcome to Soulmate!";
+    $message = "
+        <h1>Welcome, $username!</h1>
+        <p>We're glad to have you on Soulmate.</p>
+        <p>If you have any questions, feel free to reach out!</p>
+    ";
+    $headers = "From: Soulmate <no-reply@soulmate.com.pk>\r\n";
+    $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
+
+    // Use mail() function for simplicity
+    if (mail($to, $subject, $message, $headers)) {
+        return true;
+    } else {
+        return "Failed to send email.";
+    }
+}
 ?>
+
 
 
 <!DOCTYPE html>
