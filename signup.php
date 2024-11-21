@@ -52,6 +52,8 @@ function sendVerificationEmail($to, $username, $verificationToken)
                 <h1>Welcome to Soulmate, $username!</h1>
                 <p>Thank you for signing up. Please activate your account by clicking the link below:</p>
                 <p><a href='$verificationLink'>Activate Account</a></p>
+                <p>If the button is not working then click on the link below.</p>
+                <p><a href='$verificationLink'>'$verificationLink'</a></p>
                 <p>If you did not sign up for Soulmate, please ignore this email.</p>
             </body>
             </html>
