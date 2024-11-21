@@ -12,7 +12,7 @@ require 'assets/vendor/PHPMailer/src/SMTP.php';
 include 'layouts/config.php';
 include 'layouts/functions.php';
 
-function sendVerificationEmail($to, $username, $verificationToken = null)
+function sendVerificationEmail($to, $username, $verificationToken)
 {
     global $mailHost, $mailUsername, $mailPassword, $mailPort; // Use global variables from config.php
 
@@ -34,13 +34,16 @@ function sendVerificationEmail($to, $username, $verificationToken = null)
         $mail->addAddress($to);                   // Recipient email
 
         $mail->isHTML(true);                      // Set email format to HTML
-        $mail->Subject = 'Testing - Soulmate';
+        $mail->Subject = 'Account Activation - Soulmate';
 
         // Generate email body
-        // $verificationLink = "https://soulmate.com.pk/verify.php?token=$verificationToken";
+        $verificationLink = "https://soulmate.com.pk/account-ac.php?token=$verificationToken";
         $mail->Body = "
             <h1>Welcome to Soulmate, $username!</h1>
-            
+            <p>Thank you for signing up. Please activate your account.</p>
+            <p>Click the link below to activate:</p>
+            <p><a href='$verificationLink' style='color: #007BFF; text-decoration: none;'>Activate Account</a></p>
+            <p>If you did not sign up for Soulmate, please ignore this email.</p>
         ";
 
         // Optional plain text alternative
