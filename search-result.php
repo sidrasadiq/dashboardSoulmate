@@ -154,13 +154,17 @@
                     $stmt->bind_param($types, ...$params);
                     $stmt->execute();
                     $result = $stmt->get_result();
-
                     // Display results
                     if ($result && $result->num_rows > 0) {
                         echo '<div class="container mt-4">';
                         echo '<div class="row">';
                         while ($row = $result->fetch_assoc()) {
-                            echo '<div class="col-md-4 mb-4">';
+
+                            // Wrap the entire card in an anchor tag to make it clickable
+                            $profileLink = 'showprofile.php?id=' . $row['id']; // Adjust this URL as needed
+                            echo '<div class="col-md-3 mb-4">';
+                            echo '<a href="' . $profileLink . '" target="_blank" class="text-decoration-none">'; // Make the card clickable and open in a new tab
+
                             echo '<div class="card h-100">';
 
                             // Set profile picture with a fallback
@@ -194,21 +198,20 @@
                             echo "<p class='card-text'><strong><small class='text-muted'>" . htmlspecialchars($row['bio']) . "</small></strong></p>";
 
                             // Display icons (e.g., heart, chat, gift, camera)
-                            echo '<div>';
-                            echo '<i class="bi bi-heart p-1 text-muted"></i>';
-                            echo '<i class="bi bi-chat p-1 text-muted"></i>';
-                            echo '<i class="bi bi-gift p-1 text-muted"></i>';
-                            echo '<i class="bi bi-camera p-1 text-muted"></i>';
-                            echo '</div>';
 
                             echo '</div>'; // End of card body
-                            echo '<div class="card-footer text-center">';
+                            echo '<div class="card-footer border-0 bg-transparent text-start">';
 
                             // Add the 'View Profile' button (if needed)
-                            echo "<a href='showprofile.php?id=" . htmlspecialchars($row['id']) . "' class='btn btn-primary'>View Profile</a>";
-
+                            echo '<div>';
+                            echo '<i class="bi bi-heart-fill p-2 text-muted fs-3"></i>'; // Adjust the size using fs-3
+                            echo '<i class="bi bi-chat-fill p-2 text-muted fs-3"></i>';
+                            echo '<i class="bi bi-gift-fill p-2 text-muted fs-3"></i>';
+                            echo '<i class="bi bi-camera-fill p-2 text-muted fs-3"></i>';
+                            echo '</div>';
                             echo '</div>'; // End of card footer
                             echo '</div>'; // End of card
+                            echo '</a>'; // Close the anchor tag
                             echo '</div>'; // End of col-md-4
                         }
                         echo '</div>'; // End of row
@@ -216,6 +219,7 @@
                     } else {
                         echo '<div class="alert alert-warning">No results found based on your filters.</div>';
                     }
+                    echo "</a>";
                 } else {
                     echo "Query preparation failed: " . $conn->error;
                 }
@@ -237,24 +241,6 @@
     }
     ?>
 
-    <!DOCTYPE html>
-    <html lang="en">
-
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-        <title>User Panel</title>
-        <link rel="stylesheet" href="assets/css/style.css">
-    </head>
-
-    <body class="bg-light">
-        <?php include 'userlayout/footer.php'; ?>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
-
-    </html>
 
 
     <!DOCTYPE html>
@@ -268,23 +254,49 @@
         <title>User Panel</title>
         <link rel="stylesheet" href="assets/css/style.css">
         <style>
-            .cardby {
-                min-height: 200px;
-                /* Ensures uniform card height */
-                padding: 20px;
-                /* Light background for better contrast */
+            .card {
+                height: 500px !important;
+                /* Fixed height for uniformity */
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                /* Ensures proper spacing between elements */
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                /* Adds a subtle shadow for better visuals */
+            }
+
+            .card-img-top {
+                height: 200px;
+                /* Fixed height for the image */
+                object-fit: cover;
+                /* Ensures the image fits the designated space */
+            }
+
+            .card-body {
+                flex-grow: 1;
+                /* Allows the body to fill the remaining space */
+                padding: 15px;
+                text-align: start;
+                /* Aligns text to the left */
             }
 
             .card-title {
-                font-size: 1.25rem;
+                font-size: 1.35rem;
                 font-weight: bold;
                 color: #343a40;
             }
 
             .card-text {
-                font-size: 0.9rem;
-                line-height: 1.5;
                 color: #6c757d;
+            }
+
+
+
+            @media (max-width: 768px) {
+                .card {
+                    height: auto;
+                    /* Allows flexibility on smaller screens */
+                }
             }
         </style>
     </head>
@@ -296,3 +308,5 @@
     </body>
 
     </html>
+    </body>
+    <?php include 'userlayout/footer.php'; ?>

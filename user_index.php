@@ -90,21 +90,29 @@ if (isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .cardby {
-            min-height: 200px;
+            height: 350px !important;
             /* Ensures uniform card height */
             padding: 20px;
             /* Light background for better contrast */
         }
 
+
+
+        .card-body {
+            flex-grow: 1;
+            /* Allows the body to fill the remaining space */
+            padding: 15px;
+            text-align: start;
+            /* Aligns text to the left */
+        }
+
         .card-title {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-weight: bold;
             color: #343a40;
         }
 
         .card-text {
-            font-size: 0.9rem;
-            line-height: 1.5;
             color: #6c757d;
         }
     </style>
@@ -304,95 +312,95 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <!-- Search Section Start -->
-    <div class="container mt-5">
-        <div class="card border-0 bg-light">
-            <div class="card-body cardby">
-                <div class="row">
-                    <?php
-                    // Query to fetch data
-                    $query = "
-                SELECT 
-                    profiles.*, 
-                    countries.country_name, 
-                    cities.city_name,
-                    users.username,
-                    users.email,
-                    users.password,
-                    nationality.nationality_name,
-                    religion.religion_name,
-                    qualifications.qualification_name
-                FROM 
-                    profiles
-                JOIN users ON profiles.user_id = users.id
-                LEFT JOIN countries ON profiles.country_id = countries.id
-                LEFT JOIN cities ON profiles.city_id = cities.id
-                LEFT JOIN nationality ON profiles.nationality_id = nationality.id
-                LEFT JOIN religion ON profiles.religion_id = religion.id
-                LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
-                WHERE users.id != $userId";
+
+    <div class="container mt-4">
+        <div class="row">
+            <?php
+            $query = "
+            SELECT 
+                profiles.*, 
+                countries.country_name, 
+                cities.city_name,
+                users.username,
+                users.email,
+                users.password,
+                nationality.nationality_name,
+                religion.religion_name,
+                qualifications.qualification_name
+            FROM 
+                profiles
+            JOIN users ON profiles.user_id = users.id
+            LEFT JOIN countries ON profiles.country_id = countries.id
+            LEFT JOIN cities ON profiles.city_id = cities.id
+            LEFT JOIN nationality ON profiles.nationality_id = nationality.id
+            LEFT JOIN religion ON profiles.religion_id = religion.id
+            LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
+            WHERE users.id != $userId";
+
+            $result = mysqli_query($conn, $query);
+
+            if ($result && $result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    // Wrap the entire card in an anchor tag to make it clickable
+                    $profileLink = 'showprofile.php?id=' . $row['id']; // Adjust this URL as needed
+                    echo '<div class="col-md-3 mb-4">';
+                    echo '<a href="' . $profileLink . '" target="_blank" class="text-decoration-none">'; // Make the card clickable and open in a new tab
+
+                    echo '<div class="card h-100 shadow-sm border-0">';
+
+                    // Set profile picture with a fallback
+                    $profilePicture = $row['profile_picture'] ?: 'placeholder.jpg';
+                    echo "<img src='uploads/{$profilePicture}' class='card-img-top' alt='Profile Picture' style='height: 200px; object-fit: cover;'>";
+
+                    echo '<div class="card-body">';
+                    echo '<div>';
+
+                    // Display username
+                    echo "<h4 class='card-title'>" . htmlspecialchars($row['username']) . "</h4>";
+
+                    // Display date of birth, city, and country
+                    echo '<p class="card-text text-muted">';
+                    echo isset($row['date_of_birth']) && !empty($row['date_of_birth'])
+                        ? htmlspecialchars((new DateTime())->diff(new DateTime($row['date_of_birth']))->y . " . " . $row['city_name'] . ", " . $row['country_name'])
+                        : 'No data available';
+                    echo '</p>';
+
+                    // Display religion
+                    echo "<h5 class='card-text'>" . htmlspecialchars($row['religion_name']) . "</h5>";
+
+                    // Display what the user is seeking and age preferences
+                    echo "<p class='card-text'><small class='text-muted'>Seeking: ";
+                    echo htmlspecialchars($row['looking_for'] . " " . $row['prefer_age_from'] . "-" . $row['prefer_age_to']);
+                    echo "</small></p>";
+
+                    echo '</div>'; // End of the div wrapping username, religion, etc.
+
+                    // Display bio
+                    echo "<p class='card-text'><strong><small class='text-muted'>" . htmlspecialchars($row['bio']) . "</small></strong></p>";
+
+                    echo '</div>'; // End of card body
+
+                    echo '<div class="card-footer border-0 bg-transparent text-start">';
+                    echo '<div>';
+                    echo '<i class="bi bi-heart-fill p-2 text-muted fs-3"></i>'; // Adjust the size using fs-3
+                    echo '<i class="bi bi-chat-fill p-2 text-muted fs-3"></i>';
+                    echo '<i class="bi bi-gift-fill p-2 text-muted fs-3"></i>';
+                    echo '<i class="bi bi-camera-fill p-2 text-muted fs-3"></i>';
+                    echo '</div>';
+                    echo '</div>'; // End of card footer
+
+                    echo '</div>'; // End of card
+                    echo '</a>'; // Close the anchor tag
+                    echo '</div>'; // End of col-md-3
+                }
+            } else {
+                echo '<p>No profiles found.</p>';
+            }
+            ?>
+        </div> <!-- End of row -->
+    </div> <!-- End of container -->
 
 
-                    $result = mysqli_query($conn, $query);
-
-                    // Check if results exist
-                    if (mysqli_num_rows($result) > 0) {
-                        while ($row = mysqli_fetch_assoc($result)) {
-
-                    ?>
-                            <div class="col-md-4 mb-4">
-                                <div class="card h-100 shadow-sm border-0">
-                                    <div class="row g-0 h-100">
-                                        <div class="col-md-5">
-                                            <!-- Adjust image styles -->
-                                            <img src="uploads/<?php echo htmlspecialchars($row['profile_picture'] ?? 'default.jpg'); ?>"
-                                                class="img-fluid rounded-start w-100 h-100"
-                                                style="object-fit: cover; border-radius: 8px 0 0 8px;"
-                                                alt="<?php echo htmlspecialchars($row['username']); ?>">
-                                        </div>
-                                        <div class="col-md-7">
-                                            <div class="card-body cardby d-flex flex-column justify-content-between">
-                                                <div>
-                                                    <h4 class="card-title"><?php echo htmlspecialchars($row['username']); ?></h4>
-                                                    <p class="card-text text-muted">
-                                                        <?php
-                                                        echo isset($row['date_of_birth']) && !empty($row['date_of_birth'])
-                                                            ? htmlspecialchars((new DateTime())->diff(new DateTime($row['date_of_birth']))->y . " . " . $row['city_name'] . ", " . $row['country_name'])
-                                                            : 'No data available';
-                                                        ?>
-                                                    </p>
-                                                    <h5 class="card-text"><?php echo htmlspecialchars($row['religion_name']); ?></h5>
-                                                    <p class="card-text">
-                                                        <small class="text-muted">Seeking:
-                                                            <?php echo htmlspecialchars($row['looking_for'] . " " . $row['prefer_age_from'] . "-" . $row['prefer_age_to']); ?>
-                                                        </small>
-                                                    </p>
-                                                </div>
-                                                <p class="card-text">
-                                                    <strong>
-                                                        <small class="text-muted"><?php echo htmlspecialchars($row['bio']); ?></small>
-                                                    </strong>
-                                                </p>
-                                                <div class="">
-                                                    <i class="bi bi-heart p-1 text-muted"></i>
-                                                    <i class="bi bi-chat p-1 text-muted"></i>
-                                                    <i class="bi bi-gift p-1 text-muted"></i>
-                                                    <i class="bi bi-camera p-1 text-muted"></i>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                    <?php
-                        }
-                    } else {
-                        echo '<p>No profiles found.</p>';
-                    }
-                    ?>
-                </div>
-            </div>
-        </div>
-    </div>
     <!-- Search Section End -->
 
 
