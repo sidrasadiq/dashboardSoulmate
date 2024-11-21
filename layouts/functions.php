@@ -156,9 +156,9 @@ function rowInfo($conn, $tableName, $columnName, $id)
         }
     }
 }
-
-function sendVerificationEmail($mailHost, $mailUsername, $mailPassword, $mailPort, $to, $username, $verificationToken)
+function sendVerificationEmail($to, $username, $verificationToken)
 {
+    global $mailHost, $mailUsername, $mailPassword, $mailPort; // Use global variables from config.php
 
     // Create PHPMailer instance
     $mail = new PHPMailer(true);
@@ -166,12 +166,12 @@ function sendVerificationEmail($mailHost, $mailUsername, $mailPassword, $mailPor
     try {
         // Server settings
         $mail->isSMTP();                          // Use SMTP
-        $mail->Host = $mailHost;                  // SMTP server
+        $mail->Host = $mailHost;                  // SMTP server from config.php
         $mail->SMTPAuth = true;                   // Enable SMTP authentication
-        $mail->Username = $mailUsername;          // SMTP username
-        $mail->Password = $mailPassword;          // SMTP password
+        $mail->Username = $mailUsername;          // SMTP username from config.php
+        $mail->Password = $mailPassword;          // SMTP password from config.php
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable TLS encryption
-        $mail->Port = $mailPort;                  // SMTP port
+        $mail->Port = $mailPort;                  // SMTP port from config.php
 
         // Email settings
         $mail->setFrom($mailUsername, 'Soulmate'); // Sender email and name
@@ -197,6 +197,6 @@ function sendVerificationEmail($mailHost, $mailUsername, $mailPassword, $mailPor
         $mail->send();
         return true; // Email sent successfully
     } catch (Exception $e) {
-        return "Mailer Error: {$mail->ErrorInfo}";
+        return "Mailer Error: {$mail->ErrorInfo}"; // Return error message for debugging
     }
 }
