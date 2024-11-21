@@ -80,7 +80,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
     $updatedAt = date("Y-m-d H:i:s");
     $role_id = 2; // Default role_id for new users
     $verification_token = bin2hex(random_bytes(16));
+    // $verification_token = md5(random_bytes(10));
+    $recaptchaResponse = $_POST['g-recaptcha-response'];
+    $recaptchaSecret = '6LfnzIUqAAAAAO0-tBQY5CuJ28oruqRN2mdDgwX-'; // Your Secret Key
 
+    // Verify reCAPTCHA response
+    $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaSecret&response=$recaptchaResponse");
+    $responseKeys = json_decode($response, true);
+
+    if (!$responseKeys['success']) {
+        $_SESSION['message'][] = ["type" => "danger", "content" => "reCAPTCHA verification failed. Please try again."];
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit();
+    }
     // Check if user has confirmed terms
     if (!isset($_POST['usercheck'])) {
         $_SESSION['message'][] = array("type" => "error", "content" => "You must agree to the terms to sign up.");
@@ -336,7 +348,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                     </div>
                     <div class="input-group">
                         <input type="date" class="form-control" name="userdate" required>
-
                     </div>
                     <div class="input-group">
                         <input type="email" class="form-control" placeholder="Email Address" name="useremail" required>
@@ -350,9 +361,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                             Yes, I confirm that I am over 18 and agree to the Terms of Use and Privacy Statement.
                         </label>
                     </div>
+                    <div class="g-recaptcha" data-sitekey="6LfnzIUqAAAAAM-iYmBupjm6y5lJ8Xj0pmd8KYGH"></div>
                     <button type="submit" class="btn">Submit</button>
                     <p class="text-center mt-3">Already have an account? <a href="login.php">Log In</a></p>
                 </form>
+                <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
             </div>
         </div>
     </div>
