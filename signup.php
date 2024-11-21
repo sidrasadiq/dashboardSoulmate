@@ -12,7 +12,7 @@ require 'assets/vendor/PHPMailer/src/SMTP.php';
 include 'layouts/config.php';
 include 'layouts/functions.php';
 
-function sendVerificationEmail($to, $username, $verificationToken)
+function sendVerificationEmail($to, $username, $verificationToken = null)
 {
     global $mailHost, $mailUsername, $mailPassword, $mailPort; // Use global variables from config.php
 
@@ -34,20 +34,17 @@ function sendVerificationEmail($to, $username, $verificationToken)
         $mail->addAddress($to);                   // Recipient email
 
         $mail->isHTML(true);                      // Set email format to HTML
-        $mail->Subject = 'Email Verification - Soulmate';
+        $mail->Subject = 'Testing - Soulmate';
 
         // Generate email body
-        $verificationLink = "https://soulmate.com.pk/verify.php?token=$verificationToken";
+        // $verificationLink = "https://soulmate.com.pk/verify.php?token=$verificationToken";
         $mail->Body = "
             <h1>Welcome to Soulmate, $username!</h1>
-            <p>Thank you for signing up. Please verify your email address to activate your account.</p>
-            <p>Click the link below to verify your email:</p>
-            <p><a href='$verificationLink' style='color: #007BFF; text-decoration: none;'>Verify Email</a></p>
-            <p>If you did not sign up for Soulmate, please ignore this email.</p>
+            
         ";
 
         // Optional plain text alternative
-        $mail->AltBody = "Welcome to Soulmate, $username!\n\nPlease verify your email address to activate your account:\n$verificationLink\n\nIf you did not sign up for Soulmate, please ignore this email.";
+        // $mail->AltBody = "Welcome to Soulmate, $username!\n\nPlease verify your email address to activate your account:\n$verificationLink\n\nIf you did not sign up for Soulmate, please ignore this email.";
 
         // Send email
         $mail->send();
