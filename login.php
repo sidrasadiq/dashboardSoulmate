@@ -100,10 +100,6 @@ function sendWelcomeEmail($to, $username)
 {
     global $mailHost, $mailUsername, $mailPassword, $mailPort; // Email configuration from `config.php`
 
-    require 'PHPMailer/PHPMailer.php';
-    require 'PHPMailer/SMTP.php';
-    require 'PHPMailer/Exception.php';
-
     $mail = new PHPMailer(true);
 
     try {
