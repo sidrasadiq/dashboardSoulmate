@@ -42,7 +42,7 @@ function sendVerificationEmail($to, $username, $verificationToken)
         $mail->Subject = 'Activate Your Soulmate Account';
 
         // Email body
-        $verificationLink = "https://soulmate.com.pk/account-ac.php?token=$verificationToken";
+        $verificationLink = "https://dashboard.soulmate.com.pk/account-ac.php?token=$verificationToken";
         $mailBody = "
             <html>
             <head>
