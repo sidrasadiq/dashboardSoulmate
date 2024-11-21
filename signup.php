@@ -14,6 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
     $createdAt = date("Y-m-d H:i:s");
     $updatedAt = date("Y-m-d H:i:s");
     $role_id = 2; // Default role_id for new users
+    $verification_token = bin2hex(random_bytes(16));
 
     // Check if user has confirmed terms
     if (!isset($_POST['usercheck'])) {
@@ -37,17 +38,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
         // Start the transaction
         $conn->begin_transaction();
 
+        // Check if email is unique
+        $sql_check = "SELECT id FROM users WHERE email = ?";
+        $stmt_check = $conn->prepare($sql_check);
+        $stmt_check->bind_param("s", $useremail);
+        $stmt_check->execute();
+        $stmt_check->store_result();
+        if ($stmt_check->num_rows > 0) {
+            $_SESSION['message'][] = array("type" => "error", "content" => "This email is already registered.");
+            header("location: signup.php");
+            exit();
+        }
+
         // Insert into the user table with role_id
-        $sql_user = "INSERT INTO users (username, email, password, role_id, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)";
+        $sql_user = "INSERT INTO users (username, email, password, role_id, is_verified, verification_token, created_at, updated_at) 
+                     VALUES (?, ?, ?, ?, 0, ?, ?, ?)";
         $stmt_user = $conn->prepare($sql_user);
         if (!$stmt_user) {
             throw new Exception("Failed to prepare user statement: " . $conn->error);
         }
 
-        // Bind parameters and execute user statement
-        $stmt_user->bind_param("ssssss", $username, $useremail, $userpass, $role_id, $createdAt, $updatedAt);
+        $stmt_user->bind_param("sssssss", $username, $useremail, $userpass, $role_id, $verification_token, $createdAt, $updatedAt);
         if ($stmt_user->execute()) {
-            // Get the user_id of the newly created user
             $user_id = $stmt_user->insert_id;
 
             // Insert into the profile table using the user_id
@@ -57,41 +69,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                 throw new Exception("Failed to prepare profile statement: " . $conn->error);
             }
 
-            // Bind parameters for profile table
             $stmt_profile->bind_param("isssss", $user_id, $usergender, $userlooking, $userdate, $createdAt, $updatedAt);
             if ($stmt_profile->execute()) {
                 // Commit transaction if both inserts were successful
                 $conn->commit();
-                $_SESSION['message'][] = array("type" => "", "content" => "Sign UP successful!");
+
+                // Send verification email
+                $emailSent = sendVerificationEmail($useremail, $username, $verification_token);
+                if ($emailSent !== true) {
+                    $_SESSION['message'][] = array("type" => "error", "content" => "Error sending verification email: $emailSent");
+                }
+
+                $_SESSION['message'][] = array(
+                    "type" => "success",
+                    "content" => "Signup successful! Please check your email for verification instructions."
+                );
                 header("Location: login.php");
                 exit();
             } else {
                 throw new Exception("Failed to save profile data: " . $stmt_profile->error);
             }
-
-            // Close the profile statement
-            $stmt_profile->close();
         } else {
             throw new Exception("Failed to save user data: " . $stmt_user->error);
         }
-
-        // Close the user statement
-        $stmt_user->close();
     } catch (Exception $e) {
         // Roll back transaction on error
         $conn->rollback();
-
-        // Store error message in session
         $_SESSION['message'][] = array("type" => "error", "content" => "Error: " . $e->getMessage());
     } finally {
-        // Redirect to signup page
         header("location: signup.php");
         exit();
     }
 }
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">

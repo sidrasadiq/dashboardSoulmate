@@ -4,8 +4,8 @@ include 'layouts/config.php';
 include 'layouts/functions.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
     if (empty($email) || empty($password)) {
         $_SESSION['message'][] = ["type" => "danger", "content" => "Email and Password are required."];
@@ -16,32 +16,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     try {
         mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
-        // Use a simple query for now to debug
-        $sql = "SELECT u.id, u.username, u.password, u.role_id, 
+        // Query to fetch user data along with verification status
+        $sql = "SELECT u.id, u.username, u.password, u.role_id, u.is_verified, 
                        COALESCE(p.first_name, 'Soulmate') AS first_name, 
                        COALESCE(p.last_name, 'User') AS last_name
                 FROM users u 
                 LEFT JOIN profiles p ON u.id = p.user_id
-                WHERE email = ? 
-                AND is_active = 1;";
+                WHERE u.email = ? 
+                AND u.is_active = 1;";
 
         $stmt = $conn->prepare($sql);
-        if ($stmt === false) {
+        if (!$stmt) {
             throw new Exception("Prepare statement failed: " . $conn->error);
         }
 
         $stmt->bind_param("s", $email);
         $stmt->execute();
-        $stmt->bind_result($id, $username, $hashed_password, $role_id, $first_name, $last_name);
+        $stmt->bind_result($id, $username, $hashed_password, $role_id, $is_verified, $first_name, $last_name);
 
         if ($stmt->fetch()) {
+            // Check if the user is verified
+            if ($is_verified != 1) {
+                $_SESSION['message'][] = ["type" => "danger", "content" => "Your account is not verified. Please check your email for the verification link."];
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit();
+            }
+
+            // Verify the password
             if (password_verify($password, $hashed_password)) {
                 $_SESSION["loggedin"] = true;
                 $_SESSION["user_id"] = $id;
                 $_SESSION["username"] = $username;
                 $_SESSION["role_id"] = $role_id;
                 $_SESSION["email"] = $email;
-                $_SESSION["first_name"] = $first_name ?? "Soulmate User";
+                $_SESSION["first_name"] = $first_name ?? "Soulmate";
                 $_SESSION["last_name"] = $last_name ?? "User";
 
                 header("Location: index.php");
@@ -66,8 +74,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     }
 }
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

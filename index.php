@@ -6,7 +6,7 @@ session_start();
 
 // Check if the user is logged in and role_id is set in session
 if (!isset($_SESSION['role_id'])) {
-    $_SESSION['message'][] = array("type" => "danger", "content" => "Unauthorized access.");
+    // $_SESSION['message'][] = array("type" => "danger", "content" => "Unauthorized access.");
     header("location: login.php");
     exit();
 }

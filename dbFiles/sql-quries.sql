@@ -200,3 +200,8 @@ CREATE TABLE states (
     created_by TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_by TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- added columns for verification
+ALTER TABLE users 
+ADD COLUMN is_verified TINYINT(1) DEFAULT 0,
+ADD COLUMN verification_token VARCHAR(255) NULL;
