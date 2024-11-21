@@ -74,11 +74,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                 // Commit transaction if both inserts were successful
                 $conn->commit();
 
-                // Send verification email
-                $emailSent = sendVerificationEmail($useremail, $username, $verification_token);
-                if ($emailSent !== true) {
-                    $_SESSION['message'][] = array("type" => "error", "content" => "Error sending verification email: $emailSent");
-                }
+                // // Send verification email
+                // $emailSent = sendVerificationEmail($useremail, $username, $verification_token);
+                // if ($emailSent !== true) {
+                //     $_SESSION['message'][] = array("type" => "error", "content" => "Error sending verification email: $emailSent");
+                // }
 
                 $_SESSION['message'][] = array(
                     "type" => "success",

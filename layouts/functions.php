@@ -1,13 +1,5 @@
 <?php
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-// Load PHPMailer files
-require 'assets/vendor/PHPMailer/src/Exception.php';
-require 'assets/vendor/PHPMailer/src/PHPMailer.php';
-require 'assets/vendor/PHPMailer/src/SMTP.php';
-
 // include 'config.php';
 function get_home_url()
 {
@@ -156,47 +148,47 @@ function rowInfo($conn, $tableName, $columnName, $id)
         }
     }
 }
-function sendVerificationEmail($to, $username, $verificationToken)
-{
-    global $mailHost, $mailUsername, $mailPassword, $mailPort; // Use global variables from config.php
+// function sendVerificationEmail($to, $username, $verificationToken)
+// {
+//     global $mailHost, $mailUsername, $mailPassword, $mailPort; // Use global variables from config.php
 
-    // Create PHPMailer instance
-    $mail = new PHPMailer(true);
+//     // Create PHPMailer instance
+//     $mail = new PHPMailer(true);
 
-    try {
-        // Server settings
-        $mail->isSMTP();                          // Use SMTP
-        $mail->Host = $mailHost;                  // SMTP server from config.php
-        $mail->SMTPAuth = true;                   // Enable SMTP authentication
-        $mail->Username = $mailUsername;          // SMTP username from config.php
-        $mail->Password = $mailPassword;          // SMTP password from config.php
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable TLS encryption
-        $mail->Port = $mailPort;                  // SMTP port from config.php
+//     try {
+//         // Server settings
+//         $mail->isSMTP();                          // Use SMTP
+//         $mail->Host = $mailHost;                  // SMTP server from config.php
+//         $mail->SMTPAuth = true;                   // Enable SMTP authentication
+//         $mail->Username = $mailUsername;          // SMTP username from config.php
+//         $mail->Password = $mailPassword;          // SMTP password from config.php
+//         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Enable TLS encryption
+//         $mail->Port = $mailPort;                  // SMTP port from config.php
 
-        // Email settings
-        $mail->setFrom($mailUsername, 'Soulmate'); // Sender email and name
-        $mail->addAddress($to);                   // Recipient email
+//         // Email settings
+//         $mail->setFrom($mailUsername, 'Soulmate'); // Sender email and name
+//         $mail->addAddress($to);                   // Recipient email
 
-        $mail->isHTML(true);                      // Set email format to HTML
-        $mail->Subject = 'Email Verification - Soulmate';
+//         $mail->isHTML(true);                      // Set email format to HTML
+//         $mail->Subject = 'Email Verification - Soulmate';
 
-        // Generate email body
-        $verificationLink = "https://soulmate.com.pk/verify.php?token=$verificationToken";
-        $mail->Body = "
-            <h1>Welcome to Soulmate, $username!</h1>
-            <p>Thank you for signing up. Please verify your email address to activate your account.</p>
-            <p>Click the link below to verify your email:</p>
-            <p><a href='$verificationLink' style='color: #007BFF; text-decoration: none;'>Verify Email</a></p>
-            <p>If you did not sign up for Soulmate, please ignore this email.</p>
-        ";
+//         // Generate email body
+//         $verificationLink = "https://soulmate.com.pk/verify.php?token=$verificationToken";
+//         $mail->Body = "
+//             <h1>Welcome to Soulmate, $username!</h1>
+//             <p>Thank you for signing up. Please verify your email address to activate your account.</p>
+//             <p>Click the link below to verify your email:</p>
+//             <p><a href='$verificationLink' style='color: #007BFF; text-decoration: none;'>Verify Email</a></p>
+//             <p>If you did not sign up for Soulmate, please ignore this email.</p>
+//         ";
 
-        // Optional plain text alternative
-        $mail->AltBody = "Welcome to Soulmate, $username!\n\nPlease verify your email address to activate your account:\n$verificationLink\n\nIf you did not sign up for Soulmate, please ignore this email.";
+//         // Optional plain text alternative
+//         $mail->AltBody = "Welcome to Soulmate, $username!\n\nPlease verify your email address to activate your account:\n$verificationLink\n\nIf you did not sign up for Soulmate, please ignore this email.";
 
-        // Send email
-        $mail->send();
-        return true; // Email sent successfully
-    } catch (Exception $e) {
-        return "Mailer Error: {$mail->ErrorInfo}"; // Return error message for debugging
-    }
-}
+//         // Send email
+//         $mail->send();
+//         return true; // Email sent successfully
+//     } catch (Exception $e) {
+//         return "Mailer Error: {$mail->ErrorInfo}"; // Return error message for debugging
+//     }
+// }
