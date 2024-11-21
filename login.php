@@ -1,15 +1,14 @@
 <?php
 session_start();
-include 'layouts/config.php';
-include 'layouts/functions.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
-// Load PHPMailer files
 require 'assets/vendor/PHPMailer/src/Exception.php';
 require 'assets/vendor/PHPMailer/src/PHPMailer.php';
 require 'assets/vendor/PHPMailer/src/SMTP.php';
+include 'layouts/config.php';
+include 'layouts/functions.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
