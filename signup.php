@@ -68,45 +68,97 @@ include 'layouts/functions.php';
 //     }
 // }
 
-function sendVerificationEmail($to, $username, $verificationToken)
+// function sendVerificationEmail($to, $username, $verificationToken)
+// {
+//     // Email subject
+//     $subject = 'Activate Your Soulmate Account';
+
+//     // Email body
+//     $verificationLink = "https://dashboard.soulmate.com.pk/account-ac.php?token=$verificationToken";
+//     $message = "
+//         <html>
+//         <head>
+//             <title>Activate Your Soulmate Account</title>
+//         </head>
+//         <body>
+//             <h1>Welcome to Soulmate, $username!</h1>
+//             <p>Thank you for signing up. Please activate your account by clicking the link below:</p>
+//             <p><a href='$verificationLink'>Activate Account</a></p>
+//             <p>If the button is not working, then copy and paste the link below into your browser:</p>
+//             <p>$verificationLink</p>
+//             <p>If you did not sign up for Soulmate, please ignore this email.</p>
+//         </body>
+//         </html>
+//     ";
+
+//     // Email headers
+//     $headers = "MIME-Version: 1.0" . "\r\n";
+//     $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+//     $headers .= "From: Soulmate <no-reply@soulmate.com.pk>" . "\r\n";
+//     $headers .= "Reply-To: no-reply@soulmate.com.pk" . "\r\n";
+//     $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+//     $headers .= "List-Unsubscribe: <https://soulmate.com.pk/unsubscribe>" . "\r\n"; // Optional unsubscribe link
+
+//     // Send the email
+//     if (mail($to, $subject, $message, $headers)) {
+//         return true;
+//     } else {
+//         return "Error: Unable to send email.";
+//     }
+// }
+
+function sendVerificationEmail($to, $username, $otp)
 {
-    // Email subject
-    $subject = 'Activate Your Soulmate Account';
+    global $mailHost, $mailUsername, $mailPassword, $mailPort;
 
-    // Email body
-    $verificationLink = "https://dashboard.soulmate.com.pk/account-ac.php?token=$verificationToken";
-    $message = "
-        <html>
-        <head>
-            <title>Activate Your Soulmate Account</title>
-        </head>
-        <body>
-            <h1>Welcome to Soulmate, $username!</h1>
-            <p>Thank you for signing up. Please activate your account by clicking the link below:</p>
-            <p><a href='$verificationLink'>Activate Account</a></p>
-            <p>If the button is not working, then copy and paste the link below into your browser:</p>
-            <p>$verificationLink</p>
-            <p>If you did not sign up for Soulmate, please ignore this email.</p>
-        </body>
-        </html>
-    ";
+    // Create a PHPMailer instance
+    $mail = new PHPMailer(true);
 
-    // Email headers
-    $headers = "MIME-Version: 1.0" . "\r\n";
-    $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-    $headers .= "From: Soulmate <no-reply@soulmate.com.pk>" . "\r\n";
-    $headers .= "Reply-To: no-reply@soulmate.com.pk" . "\r\n";
-    $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
-    $headers .= "List-Unsubscribe: <https://soulmate.com.pk/unsubscribe>" . "\r\n"; // Optional unsubscribe link
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = $mailHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = $mailPort;
 
-    // Send the email
-    if (mail($to, $subject, $message, $headers)) {
+        // Email settings
+        $mail->setFrom($mailUsername, 'Soulmate');
+        $mail->addAddress($to);
+        $mail->isHTML(true);
+
+        // Email headers
+        $mail->addCustomHeader('X-Mailer', 'PHPMailer');
+        // $mail->addCustomHeader('List-Unsubscribe', '<https://soulmate.com.pk/unsubscribe>'); // Add unsubscribe link
+
+        // Email subject
+        $mail->Subject = 'Welcome to Soulamte';
+
+        // Email body
+        // $verificationLink = "https://dashboard.soulmate.com.pk/account-ac.php?token=$verificationToken";
+        $mailBody = "
+            <html>
+            <head>
+                <title>here is the 6 digit otp for soulmate</title>
+            </head>
+            <body>
+                <h1>Welcome to Soulmate, $username!</h1>
+                <p>Thank you for signing up.</p>
+                <p>Your OTP is '" . $otp . "'.</p>
+            </body>
+            </html>
+        ";
+        $mail->Body = $mailBody;
+
+        // Send the email
+        $mail->send();
         return true;
-    } else {
-        return "Error: Unable to send email.";
+    } catch (Exception $e) {
+        return "Mailer Error: {$mail->ErrorInfo}";
     }
 }
-
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
 
@@ -134,6 +186,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
     $updatedAt = date("Y-m-d H:i:s");
     $role_id = 2; // Default role_id for new users
     $verification_token = bin2hex(random_bytes(16));
+    $otp = rand(100000, 999999);
 
     // Check if user has confirmed terms
     if (!isset($_POST['usercheck'])) {
