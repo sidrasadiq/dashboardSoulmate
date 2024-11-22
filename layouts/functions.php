@@ -1,5 +1,13 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+// Load PHPMailer files
+require 'assets/vendor/PHPMailer/src/Exception.php';
+require 'assets/vendor/PHPMailer/src/PHPMailer.php';
+require 'assets/vendor/PHPMailer/src/SMTP.php';
+
 // include 'config.php';
 function get_home_url()
 {
@@ -146,5 +154,84 @@ function rowInfo($conn, $tableName, $columnName, $id)
         if (isset($stmt) && $stmt) {
             $stmt->close();
         }
+    }
+}
+
+function sendVerificationEmail($userEmail, $username)
+{
+    global $mailHost, $mailUsername, $mailPassword, $mailPort;
+
+    // Email settings
+    $adminEmail = 'info@soulmate.com.pk'; // Admin email
+    $subjectForAdmin = 'New User Registration on Soulmate';
+    $subjectForUser = 'Account Verification in Process';
+
+    // PHPMailer instance
+    $mail = new PHPMailer(true);
+
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = $mailHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = $mailPort;
+
+        // ==============================
+        // Send Email to Admin
+        // ==============================
+        $mail->clearAddresses(); // Clear recipients before setting new ones
+        $mail->setFrom($mailUsername, 'Soulmate');
+        $mail->addAddress($adminEmail);
+        $mail->isHTML(true);
+        $mail->Subject = $subjectForAdmin;
+
+        // Admin Email Body
+        $adminBody = "
+            <html>
+            <head>
+                <title>New User Registration</title>
+            </head>
+            <body>
+                <h1>New User Registration on Soulmate</h1>
+                <p>A new user has signed up on Soulmate.</p>
+                <p><strong>Username:</strong> $username</p>
+                <p><strong>Email:</strong> $userEmail</p>
+                <p>Please verify the details and activate the account.</p>
+            </body>
+            </html>
+        ";
+        $mail->Body = $adminBody;
+        $mail->send(); // Send email to Admin
+
+        // ==============================
+        // Send Email to User
+        // ==============================
+        $mail->clearAddresses(); // Clear recipients before setting new ones
+        $mail->addAddress($userEmail);
+        $mail->Subject = $subjectForUser;
+
+        // User Email Body
+        $userBody = "
+            <html>
+            <head>
+                <title>Account Verification</title>
+            </head>
+            <body>
+                <h1>Welcome to Soulmate, $username!</h1>
+                <p>Thank you for signing up on Soulmate.</p>
+                <p>Your account is currently under verification. It will be activated within 2 to 4 working hours.</p>
+                <p>If you have any questions, feel free to contact us at info@soulmate.com.pk.</p>
+            </body>
+            </html>
+        ";
+        $mail->Body = $userBody;
+        $mail->send(); // Send email to User
+
+        return true; // Return success
+    } catch (Exception $e) {
+        return "Mailer Error: {$mail->ErrorInfo}"; // Return error message
     }
 }
