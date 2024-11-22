@@ -1,13 +1,6 @@
 <?php
 session_start();
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-
-// Load PHPMailer files
-require 'assets/vendor/PHPMailer/src/Exception.php';
-require 'assets/vendor/PHPMailer/src/PHPMailer.php';
-require 'assets/vendor/PHPMailer/src/SMTP.php';
 
 include 'layouts/config.php';
 include 'layouts/functions.php';
@@ -93,45 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-/**
- * Function to send a welcome email using PHPMailer
- */
-function sendWelcomeEmail($to, $username)
-{
-    global $mailHost, $mailUsername, $mailPassword, $mailPort; // Email configuration from `config.php`
 
-    $mail = new PHPMailer(true);
-
-    try {
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host = $mailHost;
-        $mail->SMTPAuth = true;
-        $mail->Username = $mailUsername;
-        $mail->Password = $mailPassword;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = $mailPort;
-
-        // Recipients
-        $mail->setFrom($mailUsername, 'Soulmate');
-        $mail->addAddress($to);
-
-        // Content
-        $mail->isHTML(true);
-        $mail->Subject = 'Welcome to Soulmate!';
-        $mail->Body = "
-            <h1>Welcome, $username!</h1>
-            <p>We're thrilled to have you join Soulmate.</p>
-            <p>If you have any questions, feel free to reach out!</p>
-        ";
-        $mail->AltBody = "Welcome, $username!\nWe're thrilled to have you join Soulmate.\nIf you have any questions, feel free to reach out!";
-
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        return "Mailer Error: {$mail->ErrorInfo}";
-    }
-}
 ?>
 
 

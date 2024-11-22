@@ -235,3 +235,44 @@ function sendVerificationEmail($userEmail, $username)
         return "Mailer Error: {$mail->ErrorInfo}"; // Return error message
     }
 }
+
+
+/**
+ * Function to send a welcome email using PHPMailer
+ */
+function sendWelcomeEmail($to, $username)
+{
+    global $mailHost, $mailUsername, $mailPassword, $mailPort; // Email configuration from `config.php`
+
+    $mail = new PHPMailer(true);
+
+    try {
+        // Server settings
+        $mail->isSMTP();
+        $mail->Host = $mailHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = $mailPort;
+
+        // Recipients
+        $mail->setFrom($mailUsername, 'Soulmate');
+        $mail->addAddress($to);
+
+        // Content
+        $mail->isHTML(true);
+        $mail->Subject = 'Welcome to Soulmate!';
+        $mail->Body = "
+            <h1>Welcome, $username!</h1>
+            <p>We're thrilled to have you join Soulmate.</p>
+            <p>If you have any questions, feel free to reach out!</p>
+        ";
+        $mail->AltBody = "Welcome, $username!\nWe're thrilled to have you join Soulmate.\nIf you have any questions, feel free to reach out!";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        return "Mailer Error: {$mail->ErrorInfo}";
+    }
+}
