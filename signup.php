@@ -77,6 +77,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                 // Commit transaction if both inserts were successful
                 $conn->commit();
 
+                // Save email to session
+                $_SESSION['email'] = $useremail;
+
                 // Send OTP email to the user
                 $emailSent = sendOtpEmail($useremail, $username, $otp);
                 if ($emailSent !== true) {
@@ -104,9 +107,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
         exit();
     }
 }
-
-
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

@@ -270,14 +270,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
                     <!-- <button type="submit" onclick="window.location.href='complete-profile.php';">Continue</button> -->
                     <button id="login-button" type="submit">Continue</button>
-                    <div class="text-center mt-4">
-                        <p>or</p>
-                        <!-- Google Sign-In Button -->
-                        <a href="#" class="login-with-google-btn ">
+                    <!-- <div class="text-center mt-4"> -->
+                    <!-- <p>or</p> -->
+                    <!-- Google Sign-In Button -->
+                    <!-- <a href="#" class="login-with-google-btn ">
                             Sign in with Google
-                        </a>
-                        <p class="mt-5">Let Others Know About Soulmate!</p>
-                    </div>
+                        </a> -->
+                    <p class="mt-4 text-center">Let Others Know About Soulmate!</p>
+                    <!-- </div> -->
                     <!-- Social Icons Section -->
                     <div class="social-icons-lg text-center mt-3">
                         <a href="https://www.facebook.com/soulmatemetrimony/" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
