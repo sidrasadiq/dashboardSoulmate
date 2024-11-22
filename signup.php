@@ -1,13 +1,13 @@
 <?php
 session_start();
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
+// use PHPMailer\PHPMailer\PHPMailer;
+// use PHPMailer\PHPMailer\Exception;
 
 // Load PHPMailer files
-require 'assets/vendor/PHPMailer/src/Exception.php';
-require 'assets/vendor/PHPMailer/src/PHPMailer.php';
-require 'assets/vendor/PHPMailer/src/SMTP.php';
+// require 'assets/vendor/PHPMailer/src/Exception.php';
+// require 'assets/vendor/PHPMailer/src/PHPMailer.php';
+// require 'assets/vendor/PHPMailer/src/SMTP.php';
 
 include 'layouts/config.php';
 include 'layouts/functions.php';
@@ -107,74 +107,62 @@ include 'layouts/functions.php';
 //     }
 // }
 
-function sendVerificationEmail($to, $username, $otp)
-{
-    global $mailHost, $mailUsername, $mailPassword, $mailPort;
+// function sendVerificationEmail($to, $username, $otp)
+// {
+//     global $mailHost, $mailUsername, $mailPassword, $mailPort;
 
-    // Create a PHPMailer instance
-    $mail = new PHPMailer(true);
+//     // Create a PHPMailer instance
+//     $mail = new PHPMailer(true);
 
-    try {
-        // Server settings
-        $mail->isSMTP();
-        $mail->Host = $mailHost;
-        $mail->SMTPAuth = true;
-        $mail->Username = $mailUsername;
-        $mail->Password = $mailPassword;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
-        $mail->Port = $mailPort;
+//     try {
+//         // Server settings
+//         $mail->isSMTP();
+//         $mail->Host = $mailHost;
+//         $mail->SMTPAuth = true;
+//         $mail->Username = $mailUsername;
+//         $mail->Password = $mailPassword;
+//         $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+//         $mail->Port = $mailPort;
 
-        // Email settings
-        $mail->setFrom($mailUsername, 'Soulmate');
-        $mail->addAddress($to);
-        $mail->isHTML(true);
+//         // Email settings
+//         $mail->setFrom($mailUsername, 'Soulmate');
+//         $mail->addAddress($to);
+//         $mail->isHTML(true);
 
-        // Email headers
-        $mail->addCustomHeader('X-Mailer', 'PHPMailer');
-        // $mail->addCustomHeader('List-Unsubscribe', '<https://soulmate.com.pk/unsubscribe>'); // Add unsubscribe link
+//         // Email headers
+//         $mail->addCustomHeader('X-Mailer', 'PHPMailer');
+//         // $mail->addCustomHeader('List-Unsubscribe', '<https://soulmate.com.pk/unsubscribe>'); // Add unsubscribe link
 
-        // Email subject
-        $mail->Subject = 'Welcome to Soulamte';
+//         // Email subject
+//         $mail->Subject = 'Welcome to Soulamte';
 
-        // Email body
-        // $verificationLink = "https://dashboard.soulmate.com.pk/account-ac.php?token=$verificationToken";
-        $mailBody = "
-            <html>
-            <head>
-                <title>here is the 6 digit otp for soulmate</title>
-            </head>
-            <body>
-                <h1>Welcome to Soulmate, $username!</h1>
-                <p>Thank you for signing up.</p>
-                <p>Your OTP is '" . $otp . "'.</p>
-            </body>
-            </html>
-        ";
-        $mail->Body = $mailBody;
+//         // Email body
+//         // $verificationLink = "https://dashboard.soulmate.com.pk/account-ac.php?token=$verificationToken";
+//         $mailBody = "
+//             <html>
+//             <head>
+//                 <title>here is the 6 digit otp for soulmate</title>
+//             </head>
+//             <body>
+//                 <h1>Welcome to Soulmate, $username!</h1>
+//                 <p>Thank you for signing up.</p>
+//                 <p>Your OTP is '" . $otp . "'.</p>
+//             </body>
+//             </html>
+//         ";
+//         $mail->Body = $mailBody;
 
-        // Send the email
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        return "Mailer Error: {$mail->ErrorInfo}";
-    }
-}
+//         // Send the email
+//         $mail->send();
+//         return true;
+//     } catch (Exception $e) {
+//         return "Mailer Error: {$mail->ErrorInfo}";
+//     }
+// }
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
 
-    $recaptchaResponse = $_POST['g-recaptcha-response'];
-    $recaptchaSecret = '6Lc014UqAAAAAFar-HvEBa1FixwrDVQcYASPuvO0'; // Your Secret Key
 
-    // Verify reCAPTCHA response
-    $response = file_get_contents("https://www.google.com/recaptcha/api/siteverify?secret=$recaptchaSecret&response=$recaptchaResponse");
-    $responseKeys = json_decode($response, true);
-
-    // Check the reCAPTCHA validation result
-    if (!$responseKeys['success']) {
-        $_SESSION['message'][] = ["type" => "danger", "content" => "reCAPTCHA verification failed. Please try again."];
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit();
-    }
     // Input data from form
     $username = trim($_POST['username']);
     $usergender = $_POST['usergender'];
@@ -246,11 +234,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                 // Commit transaction if both inserts were successful
                 $conn->commit();
 
-                // Send verification email
-                $emailSent = sendVerificationEmail($useremail, $username, $verification_token);
-                if ($emailSent !== true) {
-                    $_SESSION['message'][] = array("type" => "error", "content" => "Error sending verification email: $emailSent");
-                }
+                // // Send verification email
+                // $emailSent = sendVerificationEmail($useremail, $username, $verification_token);
+                // if ($emailSent !== true) {
+                //     $_SESSION['message'][] = array("type" => "error", "content" => "Error sending verification email: $emailSent");
+                // }
 
                 $_SESSION['message'][] = array(
                     "type" => "success",
@@ -457,15 +445,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                         </label>
                     </div>
 
-                    <!-- reCAPTCHA v2 widget -->
-                    <div class="g-recaptcha" data-sitekey="6Lc014UqAAAAAKvKYHVVCOVBMdcBlgvy1J-qmUlc"></div>
+
 
                     <button type="submit" class="btn">Submit</button>
                     <p class="text-center mt-3">Already have an account? <a href="login.php">Log In</a></p>
                 </form>
 
-                <!-- Include Google reCAPTCHA JavaScript -->
-                <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 
             </div>
         </div>
