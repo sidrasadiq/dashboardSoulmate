@@ -222,7 +222,6 @@ function sendVerificationEmail($userEmail, $username)
             <body>
                 <h1>Welcome to Soulmate, $username!</h1>
                 <p>Thank you for signing up on Soulmate.</p>
-                <p>Your account is currently under verification. It will be activated within 2 to 4 working hours.</p>
                 <p>If you have any questions, feel free to contact us at info@soulmate.com.pk.</p>
             </body>
             </html>
@@ -269,6 +268,53 @@ function sendWelcomeEmail($to, $username)
             <p>If you have any questions, feel free to reach out!</p>
         ";
         $mail->AltBody = "Welcome, $username!\nWe're thrilled to have you join Soulmate.\nIf you have any questions, feel free to reach out!";
+
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        return "Mailer Error: {$mail->ErrorInfo}";
+    }
+}
+
+/**
+ * Function to send OTP email
+ */
+function sendOtpEmail($to, $username, $otp)
+{
+    global $mailHost, $mailUsername, $mailPassword, $mailPort;
+
+    // Email subject and body
+    $subject = "Your Soulmate Account OTP";
+    $body = "
+        <html>
+        <head>
+            <title>Your OTP for Soulmate</title>
+        </head>
+        <body>
+            <h1>Hi $username!</h1>
+            <p>Here is your 6-digit OTP to verify your account:</p>
+            <h2>$otp</h2>
+            <p>This OTP is valid for 15 minutes. Please do not share it with anyone.</p>
+        </body>
+        </html>
+    ";
+
+    // Send Email
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = $mailHost;
+        $mail->SMTPAuth = true;
+        $mail->Username = $mailUsername;
+        $mail->Password = $mailPassword;
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+        $mail->Port = $mailPort;
+
+        $mail->setFrom($mailUsername, 'Soulmate');
+        $mail->addAddress($to);
+        $mail->isHTML(true);
+        $mail->Subject = $subject;
+        $mail->Body = $body;
 
         $mail->send();
         return true;

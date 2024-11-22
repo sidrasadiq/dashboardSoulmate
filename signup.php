@@ -6,7 +6,6 @@ include 'layouts/functions.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
 
-
     // Input data from form
     $username = trim($_POST['username']);
     $usergender = $_POST['usergender'];
@@ -18,7 +17,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
     $updatedAt = date("Y-m-d H:i:s");
     $role_id = 2; // Default role_id for new users
     $verification_token = bin2hex(random_bytes(16));
-    $otp = rand(100000, 999999);
+    $otp = rand(100000, 999999); // Generate a 6-digit OTP
 
     // Check if user has confirmed terms
     if (!isset($_POST['usercheck'])) {
@@ -54,15 +53,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
             exit();
         }
 
-        // Insert into the user table with role_id
-        $sql_user = "INSERT INTO users (username, email, password, role_id, is_verified, verification_token, created_at, updated_at) 
-                     VALUES (?, ?, ?, ?, 0, ?, ?, ?)";
+        // Insert into the user table with role_id and OTP
+        $sql_user = "INSERT INTO users (username, email, password, role_id, is_verified, verification_token, otp, created_at, updated_at) 
+                     VALUES (?, ?, ?, ?, 0, ?, ?, ?, ?)";
         $stmt_user = $conn->prepare($sql_user);
         if (!$stmt_user) {
             throw new Exception("Failed to prepare user statement: " . $conn->error);
         }
 
-        $stmt_user->bind_param("sssssss", $username, $useremail, $userpass, $role_id, $verification_token, $createdAt, $updatedAt);
+        $stmt_user->bind_param("ssssisss", $username, $useremail, $userpass, $role_id, $verification_token, $otp, $createdAt, $updatedAt);
         if ($stmt_user->execute()) {
             $user_id = $stmt_user->insert_id;
 
@@ -78,17 +77,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
                 // Commit transaction if both inserts were successful
                 $conn->commit();
 
-                // Send verification email
-                $emailSent = sendVerificationEmail($useremail, $username);
+                // Send OTP email to the user
+                $emailSent = sendOtpEmail($useremail, $username, $otp);
                 if ($emailSent !== true) {
-                    $_SESSION['message'][] = array("type" => "error", "content" => "Error sending verification email: $emailSent");
+                    $_SESSION['message'][] = array("type" => "error", "content" => "Error sending OTP email: $emailSent");
                 }
 
                 $_SESSION['message'][] = array(
                     "type" => "success",
-                    "content" => "Signup successful! Please check your email for verification instructions."
+                    "content" => "Signup successful! An OTP has been sent to your email. Please verify your account."
                 );
-                header("Location: login.php");
+                header("Location: verify-otp.php");
                 exit();
             } else {
                 throw new Exception("Failed to save profile data: " . $stmt_profile->error);
@@ -105,6 +104,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["username"])) {
         exit();
     }
 }
+
+
 ?>
 
 <!DOCTYPE html>
