@@ -1,4 +1,4 @@
-    <?php
+ <?php
     include 'userlayout/header.php';
     session_start();
 
@@ -243,70 +243,71 @@
 
 
 
-    <!DOCTYPE html>
-    <html lang="en">
+ <!DOCTYPE html>
+ <html lang="en">
 
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-        <title>User Panel</title>
-        <link rel="stylesheet" href="assets/css/style.css">
-        <style>
-            .card {
-                height: 500px !important;
-                /* Fixed height for uniformity */
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                /* Ensures proper spacing between elements */
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                /* Adds a subtle shadow for better visuals */
-            }
+ <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+     <title>User Panel</title>
+     <link rel="stylesheet" href="assets/css/style.css">
+     <style>
+         .card {
+             height: 500px !important;
+             /* Fixed height for uniformity */
+             display: flex;
+             flex-direction: column;
+             justify-content: space-between;
+             /* Ensures proper spacing between elements */
+             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+             /* Adds a subtle shadow for better visuals */
+         }
 
-            .card-img-top {
-                height: 200px;
-                /* Fixed height for the image */
-                object-fit: cover;
-                /* Ensures the image fits the designated space */
-            }
+         .card-img-top {
+             height: 200px;
+             /* Fixed height for the image */
+             object-fit: cover;
+             /* Ensures the image fits the designated space */
+         }
 
-            .card-body {
-                flex-grow: 1;
-                /* Allows the body to fill the remaining space */
-                padding: 15px;
-                text-align: start;
-                /* Aligns text to the left */
-            }
+         .card-body {
+             flex-grow: 1;
+             /* Allows the body to fill the remaining space */
+             padding: 15px;
+             text-align: start;
+             /* Aligns text to the left */
+         }
 
-            .card-title {
-                font-size: 1.35rem;
-                font-weight: bold;
-                color: #343a40;
-            }
+         .card-title {
+             font-size: 1.35rem;
+             font-weight: bold;
+             color: #343a40;
+         }
 
-            .card-text {
-                color: #6c757d;
-            }
-
-
-
-            @media (max-width: 768px) {
-                .card {
-                    height: auto;
-                    /* Allows flexibility on smaller screens */
-                }
-            }
-        </style>
-    </head>
+         .card-text {
+             color: #6c757d;
+         }
 
 
-    <!-- Add Bootstrap JavaScript bundle with Popper.js -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-    </body>
 
-    </html>
-    </body>
-    <?php include 'userlayout/footer.php'; ?>
+         @media (max-width: 768px) {
+             .card {
+                 height: auto;
+                 /* Allows flexibility on smaller screens */
+             }
+         }
+     </style>
+ </head>
+
+ <body>
+
+     <!-- Add Bootstrap JavaScript bundle with Popper.js -->
+     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
+ </body>
+
+ </html>
+ </body>
+ <?php include 'userlayout/footer.php'; ?>
