@@ -493,400 +493,465 @@ try {
                                         </div>
                                         <h4 class="mt-5 headCustom">Your Appearance</h4>
                                         <hr>
-                                        <!-- Body  type -->
                                         <div class="col-lg-12 mt-3">
                                             <div class="mb-3">
                                                 <p class="text-muted">Body type:</p>
                                                 <hr>
+                                                <?php
+                                                // Fetch the user's body type from the database
+                                                $bodyType = isset($profile['body_type']) ? htmlspecialchars($profile['body_type']) : '';
+                                                ?>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="bodyType" value="petite" id="petite">
-                                                    <label class="form-check-label text-muted  fs-6" for="petite">Petite</label>
+                                                    <input class="form-check-input fs-5 highlight-radio"
+                                                        type="radio"
+                                                        name="bodyType"
+                                                        value="petite"
+                                                        id="petite"
+                                                        <?php echo $bodyType === 'petite' ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="petite">Petite</label>
                                                 </div>
 
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="bodyType" id="slim" value="slim">
-                                                    <label class="form-check-label text-muted  fs-6" for="slim">Slim</label>
+                                                    <input class="form-check-input fs-5 highlight-radio"
+                                                        type="radio"
+                                                        name="bodyType"
+                                                        id="slim"
+                                                        value="slim"
+                                                        <?php echo $bodyType === 'slim' ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="slim">Slim</label>
                                                 </div>
 
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="bodyType" id="athletic" value="athletic">
-                                                    <label class="form-check-label text-muted  fs-6" for="athletic">Athletic</label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="bodyType" id="average" value="average">
-                                                    <label class="form-check-label text-muted  fs-6" for="average">Average</label>
-                                                </div>
-
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="bodyType" id="few extra pounds" value="few extra pounds">
-                                                    <label class="form-check-label text-muted  fs-6" for="few extra pounds">Few Extra Pounds</label>
+                                                    <input class="form-check-input fs-5 highlight-radio"
+                                                        type="radio"
+                                                        name="bodyType"
+                                                        id="athletic"
+                                                        value="athletic"
+                                                        <?php echo $bodyType === 'athletic' ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="athletic">Athletic</label>
                                                 </div>
 
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="bodyType" id="full figured" value="full figured">
-                                                    <label class="form-check-label text-muted  fs-6" for="full figured">Full Figured</label>
+                                                    <input class="form-check-input fs-5 highlight-radio"
+                                                        type="radio"
+                                                        name="bodyType"
+                                                        id="average"
+                                                        value="average"
+                                                        <?php echo $bodyType === 'average' ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="average">Average</label>
                                                 </div>
 
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="bodyType" id="large and lovely" value="large and lovely">
-                                                    <label class="form-check-label text-muted  fs-6" for="large and lovely">Large and Lovely</label>
+                                                    <input class="form-check-input fs-5 highlight-radio"
+                                                        type="radio"
+                                                        name="bodyType"
+                                                        id="few extra pounds"
+                                                        value="few extra pounds"
+                                                        <?php echo $bodyType === 'few extra pounds' ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="few extra pounds">Few Extra Pounds</label>
                                                 </div>
 
+                                                <div class="form-check form-check-inline me-5">
+                                                    <input class="form-check-input fs-5 highlight-radio"
+                                                        type="radio"
+                                                        name="bodyType"
+                                                        id="full figured"
+                                                        value="full figured"
+                                                        <?php echo $bodyType === 'full figured' ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="full figured">Full Figured</label>
+                                                </div>
+
+                                                <div class="form-check form-check-inline me-5">
+                                                    <input class="form-check-input fs-5 highlight-radio"
+                                                        type="radio"
+                                                        name="bodyType"
+                                                        id="large and lovely"
+                                                        value="large and lovely"
+                                                        <?php echo $bodyType === 'large and lovely' ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="large and lovely">Large and Lovely</label>
+                                                </div>
                                             </div>
-
                                         </div>
-                                        <!-- ethnicity  type -->
+
                                         <div class="col-lg-12 mt-2">
                                             <div class="mb-3">
                                                 <p class="text-muted">Your ethnicity is mostly:</p>
                                                 <hr>
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="arab(middle eastern)" value="arab(middle eastern)">
-                                                    <label class="form-check-label text-muted  fs-6" for="arab(middle eastern)">
-                                                        Arab (Middle Eastern) </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="arab(middle eastern)" value="arab(middle eastern)"
+                                                        <?php echo ($profile['ethnicity'] == 'arab(middle eastern)') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="arab(middle eastern)">Arab (Middle Eastern)</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="asian" value="asian">
-                                                    <label class="form-check-label text-muted  fs-6" for="asian">
-                                                        Asian </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="asian" value="asian"
+                                                        <?php echo ($profile['ethnicity'] == 'asian') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="asian">Asian</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="black" value="black">
-                                                    <label class="form-check-label text-muted  fs-6" for="black">
-                                                        Black</label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="black" value="black"
+                                                        <?php echo ($profile['ethnicity'] == 'black') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="black">Black</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" value="caucasian(white)" id="caucasian(white)">
-                                                    <label class="form-check-label text-muted  fs-6" for="caucasian(white)">
-                                                        Caucasian (White) </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="caucasian(white)" value="caucasian(white)"
+                                                        <?php echo ($profile['ethnicity'] == 'caucasian(white)') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="caucasian(white)">Caucasian (White)</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" value="hispanic/latino" id="hispanic/latino">
-                                                    <label class="form-check-label text-muted  fs-6" for="hispanic/latino">
-                                                        Hispanic/Latino </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="hispanic/latino" value="hispanic/latino"
+                                                        <?php echo ($profile['ethnicity'] == 'hispanic/latino') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="hispanic/latino">Hispanic/Latino</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" value="indain" id="indain">
-                                                    <label class="form-check-label text-muted  fs-6" for="indain">
-                                                        Indain </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="indain" value="indain"
+                                                        <?php echo ($profile['ethnicity'] == 'indain') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="indain">Indian</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" value="pacific islander" id="pacific islander">
-                                                    <label class="form-check-label text-muted  fs-6" for="pacific islander">
-                                                        Pacific Islander </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="pacific islander" value="pacific islander"
+                                                        <?php echo ($profile['ethnicity'] == 'pacific islander') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="pacific islander">Pacific Islander</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" value="other" id="other">
-                                                    <label class="form-check-label text-muted  fs-6" for="other">
-                                                        Other </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="other" value="other"
+                                                        <?php echo ($profile['ethnicity'] == 'other') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="other">Other</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5" type="radio" name="ethnicity" value="mixed" id="mixed">
-                                                    <label class="form-check-label text-muted  fs-6" for="mixed">
-                                                        Mixed </label>
+                                                    <input class="form-check-input fs-5" type="radio" name="ethnicity" id="mixed" value="mixed"
+                                                        <?php echo ($profile['ethnicity'] == 'mixed') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="mixed">Mixed</label>
                                                 </div>
+
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" value="prefer not to say" id="prefer not to say">
-                                                    <label class="form-check-label text-muted  fs-6" for="prefer not to say">
-                                                        Prefre not to say </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="ethnicity" id="prefer not to say" value="prefer not to say"
+                                                        <?php echo ($profile['ethnicity'] == 'prefer not to say') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="prefer not to say">Prefer not to say</label>
                                                 </div>
                                             </div>
-
                                         </div>
+
 
                                         <!-- my appearance   -->
                                         <div class="col-lg-12 mt-2">
                                             <div class="mb-3">
                                                 <p class="text-muted">I consider my appearance as:</p>
                                                 <hr>
-                                                <!--  -->
+
+                                                <!-- Below Average -->
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="below average" id="below average">
-                                                    <label class="form-check-label text-muted  fs-6" for="below average">
-                                                        Below average </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="below average" id="below average"
+
+                                                        <?php echo ($profile['my_appearance'] == 'below average') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="below average">Below average</label>
                                                 </div>
 
+                                                <!-- Average -->
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="average" id="average">
-                                                    <label class="form-check-label text-muted  fs-6" for="average">
-                                                        Average</label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="average" id="average"
+                                                        <?php echo ($profile['my_appearance'] == ' average') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="average">Average</label>
                                                 </div>
 
+                                                <!-- Attractive -->
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="attractive" id="attractive">
-                                                    <label class="form-check-label text-muted  fs-6" for="attractive">
-                                                        Attractive</label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="attractive" id="attractive"
+                                                        <?php echo ($profile['my_appearance'] == ' attractive') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="attractive">Attractive</label>
                                                 </div>
 
+                                                <!-- Very Attractive -->
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="very attractive" id="very attractive">
-                                                    <label class="form-check-label text-muted  fs-6" for="very attractive">
-                                                        Very attractive</label>
+                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="appearance" value="very attractive" id="very attractive"
+                                                        <?php echo ($profile['my_appearance'] == ' very attractive') ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="very attractive">Very attractive</label>
                                                 </div>
                                             </div>
-                                            <!-- height -->
+                                        </div>
+
+
+                                        <!-- height -->
+                                        <div class="row">
                                             <div class="col-lg-3 mt-2">
                                                 <div class="mb-3">
                                                     <p class="text-muted">Height:</p>
                                                     <hr>
                                                     <select id="height" name="height" class="form-select text-muted" required>
                                                         <option selected disabled value=""> Please Select... </option>
-                                                        <option value="4'7 (140 cm)">4'7" (140 cm)</option>
-                                                        <option value="4'8 (143 cm)">4'8" (143 cm)</option>
-                                                        <option value="4'9 (145 cm)">4'9" (145 cm)</option>
-                                                        <option value="4'10 (148 cm)">4'10" (148 cm)</option>
-                                                        <option value="4'11 (150 cm)">4'11" (150 cm)</option>
-                                                        <option value="5' (153 cm)">5' (153 cm)</option>
-                                                        <option value="5'1 (155 cm)">5'1" (155 cm)</option>
-                                                        <option value="5'2 (158 cm)">5'2" (158 cm)</option>
-                                                        <option value="5'3 (161 cm)">5'3" (161 cm)</option>
-                                                        <option value="5'4 (163 cm)">5'4" (163 cm)</option>
-                                                        <option value="5'5 (166 cm)">5'5" (166 cm)</option>
-                                                        <option value="5'6 (168 cm)">5'6" (168 cm)</option>
-                                                        <option value="5'7 (171 cm)">5'7" (171 cm)</option>
-                                                        <option value="5'8 (173 cm)">5'8" (173 cm)</option>
-                                                        <option value="5'9 (176 cm)">5'9" (176 cm)</option>
-                                                        <option value="5'10 (178 cm)">5'10" (178 cm)</option>
-                                                        <option value="5'11 (181 cm)">5'11" (181 cm)</option>
-                                                        <option value="6 (183 cm)">6' (183 cm)</option>
-                                                        <option value="6'1 (186 cm)">6'1" (186 cm)</option>
-                                                        <option value="6'2  (188 cm)">6'2" (188 cm)</option>
-                                                        <option value="6'3  (191 cm)">6'3" (191 cm)</option>
-                                                        <option value="6'4  (194 cm)">6'4" (194 cm)</option>
-                                                        <option value="6'5  (196 cm)">6'5" (196 cm)</option>
-                                                        <option value="6'6  (199 cm)">6'6" (199 cm)</option>
-                                                        <option value="6'7  (201 cm)">6'7" (2011 cm)</option>
-                                                        <option value="6'8  (204 cm)">6'8" (204 cm)</option>
-                                                        <option value="6'9  (206 cm)">6'9" (206 cm)</option>
-                                                        <option value="6'10  (209 cm)">6'10" (209 cm)</option>
-                                                        <option value="6'11  (211 cm)">6'11" (211 cm)</option>
-                                                        <option value="7  (214 cm)">7' (214 cm)</option>
-                                                        <option value="7'1  (216 cm)">7'1" (216 cm)</option>
-                                                        <option value="7'2  (219 cm)">7'2" (219 cm)</option>
+                                                        <option value="4'7 (140 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "4'7 (140 cm)") ? 'selected' : ''; ?>>4'7" (140 cm)</option>
+                                                        <option value="4'8 (143 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "4'8 (143 cm)") ? 'selected' : ''; ?>>4'8" (143 cm)</option>
+                                                        <option value="4'9 (145 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "4'9 (145 cm)") ? 'selected' : ''; ?>>4'9" (145 cm)</option>
+                                                        <option value="4'10 (148 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "4'10 (148 cm)") ? 'selected' : ''; ?>>4'10" (148 cm)</option>
+                                                        <option value="4'11 (150 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "4'11 (150 cm)") ? 'selected' : ''; ?>>4'11" (150 cm)</option>
+                                                        <option value="5' (153 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5' (153 cm)") ? 'selected' : ''; ?>>5' (153 cm)</option>
+                                                        <option value="5'1 (155 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'1 (155 cm)") ? 'selected' : ''; ?>>5'1" (155 cm)</option>
+                                                        <option value="5'2 (158 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'2 (158 cm)") ? 'selected' : ''; ?>>5'2" (158 cm)</option>
+                                                        <option value="5'3 (161 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'3 (161 cm)") ? 'selected' : ''; ?>>5'3" (161 cm)</option>
+                                                        <option value="5'4 (163 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'4 (163 cm)") ? 'selected' : ''; ?>>5'4" (163 cm)</option>
+                                                        <option value="5'5 (166 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'5 (166 cm)") ? 'selected' : ''; ?>>5'5" (166 cm)</option>
+                                                        <option value="5'6 (168 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'6 (168 cm)") ? 'selected' : ''; ?>>5'6" (168 cm)</option>
+                                                        <option value="5'7 (171 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'7 (171 cm)") ? 'selected' : ''; ?>>5'7" (171 cm)</option>
+                                                        <option value="5'8 (173 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'8 (173 cm)") ? 'selected' : ''; ?>>5'8" (173 cm)</option>
+                                                        <option value="5'9 (176 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'9 (176 cm)") ? 'selected' : ''; ?>>5'9" (176 cm)</option>
+                                                        <option value="5'10 (178 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'10 (178 cm)") ? 'selected' : ''; ?>>5'10" (178 cm)</option>
+                                                        <option value="5'11 (181 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "5'11 (181 cm)") ? 'selected' : ''; ?>>5'11" (181 cm)</option>
+                                                        <option value="6' (183 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6' (183 cm)") ? 'selected' : ''; ?>>6' (183 cm)</option>
+                                                        <option value="6'1 (186 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'1 (186 cm)") ? 'selected' : ''; ?>>6'1" (186 cm)</option>
+                                                        <option value="6'2 (188 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'2 (188 cm)") ? 'selected' : ''; ?>>6'2" (188 cm)</option>
+                                                        <option value="6'3 (191 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'3 (191 cm)") ? 'selected' : ''; ?>>6'3" (191 cm)</option>
+                                                        <option value="6'4 (194 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'4 (194 cm)") ? 'selected' : ''; ?>>6'4" (194 cm)</option>
+                                                        <option value="6'5 (196 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'5 (196 cm)") ? 'selected' : ''; ?>>6'5" (196 cm)</option>
+                                                        <option value="6'6 (199 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'6 (199 cm)") ? 'selected' : ''; ?>>6'6" (199 cm)</option>
+                                                        <option value="6'7 (201 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'7 (201 cm)") ? 'selected' : ''; ?>>6'7" (201 cm)</option>
+                                                        <option value="6'8 (204 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'8 (204 cm)") ? 'selected' : ''; ?>>6'8" (204 cm)</option>
+                                                        <option value="6'9 (206 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'9 (206 cm)") ? 'selected' : ''; ?>>6'9" (206 cm)</option>
+                                                        <option value="6'10 (209 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'10 (209 cm)") ? 'selected' : ''; ?>>6'10" (209 cm)</option>
+                                                        <option value="6'11 (211 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "6'11 (211 cm)") ? 'selected' : ''; ?>>6'11" (211 cm)</option>
+                                                        <option value="7' (214 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "7' (214 cm)") ? 'selected' : ''; ?>>7' (214 cm)</option>
+                                                        <option value="7'1 (216 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "7'1 (216 cm)") ? 'selected' : ''; ?>>7'1" (216 cm)</option>
+                                                        <option value="7'2 (219 cm)" <?php echo (isset($profile['height']) && $profile['height'] == "7'2 (219 cm)") ? 'selected' : ''; ?>>7'2" (219 cm)</option>
+
                                                     </select>
 
                                                     <div class="valid-feedback">Looks good!</div>
                                                     <div class="invalid-feedback">Please select a project.</div>
                                                 </div>
                                             </div>
-                                            <!-- Weight -->
+
+                                        </div>
+
+                                        <!-- Weight -->
+                                        <div class="row">
                                             <div class="col-lg-3 mt-2">
                                                 <div class="mb-3">
                                                     <p class="text-muted">Weight:</p>
                                                     <hr>
                                                     <select id="weight" name="occupation" class="form-select text-muted" required>
                                                         <option selected disabled value="">Please Select... </option>
-                                                        <option value="40kg (88Ib)">40kg (88Ib)</option>
-                                                        <option value="41kg (90Ib)">41kg (90Ib)</option>
-                                                        <option value="42kg (93Ib)">42kg (93Ib)</option>
-                                                        <option value="43kg (95Ib)">43kg (95Ib)</option>
-                                                        <option value="44kg (97Ib)">44kg (97Ib)</option>
-                                                        <option value="45kg (99Ib)">45kg (99Ib)</option>
-                                                        <option value="46kg (101Ib)">46kg (101Ib)</option>
-                                                        <option value="47kg (104Ib)">47kg (104Ib)</option>
-                                                        <option value="48kg (106Ib)">48kg (106Ib)</option>
-                                                        <option value="49kg (108Ib)">49kg (108Ib)</option>
-                                                        <option value="50kg (110Ib)">50kg (110Ib)</option>
-                                                        <option value="51kg (112Ib)">51kg (112Ib)</option>
-                                                        <option value="52kg (115Ib)">52kg (115Ib)</option>
-                                                        <option value="53kg (117Ib)">53kg (117Ib)</option>
-                                                        <option value="54kg (119Ib)">54kg (119Ib)</option>
-                                                        <option value="55kg (121Ib)">55kg (121Ib)</option>
-                                                        <option value="56kg (123Ib)">56kg (123Ib)</option>
-                                                        <option value="57kg (126Ib)">57kg (126Ib)</option>
-                                                        <option value="58kg (128Ib)">58kg (128Ib)</option>
-                                                        <option value="59kg (130Ib)">59kg (130Ib)</option>
-                                                        <option value="60kg (132Ib)">60kg (132Ib)</option>
-                                                        <option value="61kg (134Ib)">61kg (134Ib)</option>
-                                                        <option value="62kg (137Ib)">62kg (137Ib)</option>
-                                                        <option value="63kg (139Ib)">63kg (139Ib)</option>
-                                                        <option value="64kg (141Ib)">64kg (141Ib)</option>
-                                                        <option value="65kg (143Ib)">65kg (143Ib)</option>
-                                                        <option value="66kg (146Ib)">66kg (146Ib)</option>
-                                                        <option value="67kg (148Ib)">67kg (148Ib)</option>
-                                                        <option value="68kg (150Ib)">68kg (150Ib)</option>
-                                                        <option value="69kg (152Ib)">69kg (152Ib)</option>
-                                                        <option value="70kg (154Ib)">70kg (154Ib)</option>
-                                                        <option value="71kg (157Ib)">71kg (157Ib)</option>
-                                                        <option value="72kg (159Ib)">72kg (159Ib)</option>
-                                                        <option value="73kg (161Ib)">73kg (161Ib)</option>
-                                                        <option value="74kg (163Ib)">74kg (163Ib)</option>
-                                                        <option value="75kg (165Ib)">75kg (165Ib)</option>
-                                                        <option value="76kg (168Ib)">76kg (168Ib)</option>
-                                                        <option value="77kg (170Ib)">77kg (170Ib)</option>
-                                                        <option value="78kg (172Ib)">78kg (172Ib)</option>
-                                                        <option value="79kg (174Ib)">79kg (174Ib)</option>
-                                                        <option value="80kg (176Ib)">80kg (176Ib)</option>
-                                                        <option value="81kg (179Ib)">81kg (179Ib)</option>
-                                                        <option value="82kg (181Ib)">82kg (181Ib)</option>
-                                                        <option value="83kg (183Ib">83kg (183Ib)</option>
-                                                        <option value="84kg (185Ib)">84kg (185Ib)</option>
-                                                        <option value="85kg (187Ib)">85kg (187Ib)</option>
-                                                        <option value="86kg (190Ib)">86kg (190Ib)</option>
-                                                        <option value="87kg (192Ib)">87kg (192Ib)</option>
-                                                        <option value="88kg (194Ib)">88kg (194Ib)</option>
-                                                        <option value="89kg (196Ib)">89kg (196Ib)</option>
-                                                        <option value="90kg (198Ib)">90kg (198Ib)</option>
-                                                        <option value="91kg (201Ib)">91kg (201Ib)</option>
-                                                        <option value="92kg (203Ib)">92kg (203Ib)</option>
-                                                        <option value="93kg (205Ib)">93kg (205Ib)</option>
-                                                        <option value="94kg (207Ib)">94kg (207Ib)</option>
-                                                        <option value="95kg (209Ib)">95kg (209Ib)</option>
-                                                        <option value="96kg (212Ib)">96kg (212Ib)</option>
-                                                        <option value="97kg (214Ib)">97kg (214Ib)</option>
-                                                        <option value="98kg (216Ib)">98kg (216Ib)</option>
-                                                        <option value="99kg (218Ib)">99kg (218Ib)</option>
-                                                        <option value="100kg (220Ib)">100kg (220Ib)</option>
+                                                        <option value="40kg (88Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "40kg (88Ib)") ? 'selected' : ''; ?>>40kg (88Ib)</option>
+                                                        <option value="41kg (90Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "41kg (90Ib)") ? 'selected' : ''; ?>>41kg (90Ib)</option>
+                                                        <option value="42kg (93Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "42kg (93Ib)") ? 'selected' : ''; ?>>42kg (93Ib)</option>
+                                                        <option value="43kg (95Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "43kg (95Ib)") ? 'selected' : ''; ?>>43kg (95Ib)</option>
+                                                        <option value="44kg (97Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "44kg (97Ib)") ? 'selected' : ''; ?>>44kg (97Ib)</option>
+                                                        <option value="45kg (99Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "45kg (99Ib)") ? 'selected' : ''; ?>>45kg (99Ib)</option>
+                                                        <option value="46kg (101Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "46kg (101Ib)") ? 'selected' : ''; ?>>46kg (101Ib)</option>
+                                                        <option value="47kg (104Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "47kg (104Ib)") ? 'selected' : ''; ?>>47kg (104Ib)</option>
+                                                        <option value="48kg (106Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "48kg (106Ib)") ? 'selected' : ''; ?>>48kg (106Ib)</option>
+                                                        <option value="49kg (108Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "49kg (108Ib)") ? 'selected' : ''; ?>>49kg (108Ib)</option>
+                                                        <option value="50kg (110Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "50kg (110Ib)") ? 'selected' : ''; ?>>50kg (110Ib)</option>
+                                                        <option value="51kg (112Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "51kg (112Ib)") ? 'selected' : ''; ?>>51kg (112Ib)</option>
+                                                        <option value="52kg (115Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "52kg (115Ib)") ? 'selected' : ''; ?>>52kg (115Ib)</option>
+                                                        <option value="53kg (117Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "53kg (117Ib)") ? 'selected' : ''; ?>>53kg (117Ib)</option>
+                                                        <option value="54kg (119Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "54kg (119Ib)") ? 'selected' : ''; ?>>54kg (119Ib)</option>
+                                                        <option value="55kg (121Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "55kg (121Ib)") ? 'selected' : ''; ?>>55kg (121Ib)</option>
+                                                        <option value="56kg (123Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "56kg (123Ib)") ? 'selected' : ''; ?>>56kg (123Ib)</option>
+                                                        <option value="57kg (126Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "57kg (126Ib)") ? 'selected' : ''; ?>>57kg (126Ib)</option>
+                                                        <option value="58kg (128Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "58kg (128Ib)") ? 'selected' : ''; ?>>58kg (128Ib)</option>
+                                                        <option value="59kg (130Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "59kg (130Ib)") ? 'selected' : ''; ?>>59kg (130Ib)</option>
+                                                        <option value="60kg (132Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "60kg (132Ib)") ? 'selected' : ''; ?>>60kg (132Ib)</option>
+                                                        <option value="61kg (134Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "61kg (134Ib)") ? 'selected' : ''; ?>>61kg (134Ib)</option>
+                                                        <option value="62kg (137Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "62kg (137Ib)") ? 'selected' : ''; ?>>62kg (137Ib)</option>
+                                                        <option value="63kg (139Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "63kg (139Ib)") ? 'selected' : ''; ?>>63kg (139Ib)</option>
+                                                        <option value="64kg (141Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "64kg (141Ib)") ? 'selected' : ''; ?>>64kg (141Ib)</option>
+                                                        <option value="65kg (143Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "65kg (143Ib)") ? 'selected' : ''; ?>>65kg (143Ib)</option>
+                                                        <option value="66kg (146Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "66kg (146Ib)") ? 'selected' : ''; ?>>66kg (146Ib)</option>
+                                                        <option value="67kg (148Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "67kg (148Ib)") ? 'selected' : ''; ?>>67kg (148Ib)</option>
+                                                        <option value="68kg (150Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "68kg (150Ib)") ? 'selected' : ''; ?>>68kg (150Ib)</option>
+                                                        <option value="69kg (152Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "69kg (152Ib)") ? 'selected' : ''; ?>>69kg (152Ib)</option>
+                                                        <option value="70kg (154Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "70kg (154Ib)") ? 'selected' : ''; ?>>70kg (154Ib)</option>
+                                                        <option value="71kg (157Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "71kg (157Ib)") ? 'selected' : ''; ?>>71kg (157Ib)</option>
+                                                        <option value="72kg (159Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "72kg (159Ib)") ? 'selected' : ''; ?>>72kg (159Ib)</option>
+                                                        <option value="73kg (161Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "73kg (161Ib)") ? 'selected' : ''; ?>>73kg (161Ib)</option>
+                                                        <option value="74kg (163Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "74kg (163Ib)") ? 'selected' : ''; ?>>74kg (163Ib)</option>
+                                                        <option value="75kg (165Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "75kg (165Ib)") ? 'selected' : ''; ?>>75kg (165Ib)</option>
+                                                        <option value="76kg (168Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "76kg (168Ib)") ? 'selected' : ''; ?>>76kg (168Ib)</option>
+                                                        <option value="77kg (170Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "77kg (170Ib)") ? 'selected' : ''; ?>>77kg (170Ib)</option>
+                                                        <option value="78kg (172Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "78kg (172Ib)") ? 'selected' : ''; ?>>78kg (172Ib)</option>
+                                                        <option value="79kg (175Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "79kg (175Ib)") ? 'selected' : ''; ?>>79kg (175Ib)</option>
+                                                        <option value="80kg (176Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "80kg (176Ib)") ? 'selected' : ''; ?>>80kg (176Ib)</option>
+                                                        <option value="81kg (179Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "81kg (179Ib)") ? 'selected' : ''; ?>>81kg (179Ib)</option>
+                                                        <option value="82kg (181Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "82kg (181Ib)") ? 'selected' : ''; ?>>82kg (181Ib)</option>
+                                                        <option value="83kg (183Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "83kg (183Ib)") ? 'selected' : ''; ?>>83kg (183Ib)</option>
+                                                        <option value="84kg (185Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "84kg (185Ib)") ? 'selected' : ''; ?>>84kg (185Ib)</option>
+                                                        <option value="85kg (187Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "85kg (187Ib)") ? 'selected' : ''; ?>>85kg (187Ib)</option>
+                                                        <option value="86kg (190Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "86kg (190Ib)") ? 'selected' : ''; ?>>86kg (190Ib)</option>
+                                                        <option value="87kg (192Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "87kg (192Ib)") ? 'selected' : ''; ?>>87kg (192Ib)</option>
+                                                        <option value="88kg (194Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "88kg (194Ib)") ? 'selected' : ''; ?>>88kg (194Ib)</option>
+                                                        <option value="89kg (196Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "89kg (196Ib)") ? 'selected' : ''; ?>>89kg (196Ib)</option>
+                                                        <option value="90kg (198Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "90kg (198Ib)") ? 'selected' : ''; ?>>90kg (198Ib)</option>
+                                                        <option value="91kg (201Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "91kg (201Ib)") ? 'selected' : ''; ?>>91kg (201Ib)</option>
+                                                        <option value="92kg (203Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "92kg (203Ib)") ? 'selected' : ''; ?>>92kg (203Ib)</option>
+                                                        <option value="93kg (205Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "93kg (205Ib)") ? 'selected' : ''; ?>>93kg (205Ib)</option>
+                                                        <option value="94kg (207Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "94kg (207Ib)") ? 'selected' : ''; ?>>94kg (207Ib)</option>
+                                                        <option value="95kg (209Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "95kg (209Ib)") ? 'selected' : ''; ?>>95kg (209Ib)</option>
+                                                        <option value="96kg (212Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "96kg (212Ib)") ? 'selected' : ''; ?>>96kg (212Ib)</option>
+                                                        <option value="97kg (214Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "97kg (214Ib)") ? 'selected' : ''; ?>>97kg (214Ib)</option>
+                                                        <option value="98kg (216Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "98kg (216Ib)") ? 'selected' : ''; ?>>98kg (216Ib)</option>
+                                                        <option value="99kg (218Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "99kg (218Ib)") ? 'selected' : ''; ?>>99kg (218Ib)</option>
+                                                        <option value="100kg (220Ib)" <?php echo (isset($profile['weight']) && $profile['weight'] == "100kg (220Ib)") ? 'selected' : ''; ?>>100kg (220Ib)</option>
                                                     </select>
                                                     <div class="valid-feedback">Looks good!</div>
                                                     <div class="invalid-feedback">Please select a project.</div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <!--  -->
-                                        <h4 class="mt-5 headCustom">Your Lifestyle</h4>
-                                        <hr>
-                                        <!-- drink alchohal   -->
-                                        <div class="col-lg-12 mt-2">
-                                            <div class="mb-3">
-                                                <p class="text-muted">Do you drink?</p>
-                                                <hr>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="do drink" id="do drink">
-                                                    <label class="form-check-label text-muted  fs-6" for="do drink">
-                                                        Do drink </label>
-                                                </div>
+                                    </div>
+                                    <!--  -->
+                                    <h4 class="mt-5 headCustom">Your Lifestyle</h4>
+                                    <hr>
+                                    <!-- drink alchohal   -->
+                                    <div class="col-lg-12 mt-2">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Do you drink?</p>
+                                            <hr>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="do drink" id="do drink"
+                                                    <?php echo ($profile['drink_alcohol'] == 'do drink') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="do drink">
+                                                    Do drink </label>
+                                            </div>
 
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="occasionally drink" id="occasionally drink">
-                                                    <label class="form-check-label text-muted  fs-6" for="occasionally drink">
-                                                        Occasionally drink </label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="do not drink" id="do not drink">
-                                                    <label class="form-check-label text-muted  fs-6" for="do not drink">
-                                                        Don't drink</label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="prefer not to say" id="prefer not to say">
-                                                    <label class="form-check-label text-muted  fs-6" for="prefer not to say">
-                                                        Prefre not to say </label>
-                                                </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="occasionally drink" id="occasionally drink"
+                                                    <?php echo ($profile['drink_alcohol'] == 'occasionally drink') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="occasionally drink">
+                                                    Occasionally drink </label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="do not drink" id="do not drink" <?php echo ($profile['drink_alcohol'] == 'do not drink') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="do not drink">
+                                                    Don't drink</label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="drinkAlcohol" value="prefer not to say" id="prefer not to say" <?php echo ($profile['drink_alcohol'] == 'prefer not to say') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="prefer not to say">
+                                                    Prefre not to say </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- my smoke   -->
+                                    <div class="col-lg-12 mt-2">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Do you smoke?</p>
+                                            <hr>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="smoking" value="do smoke" id="do smoke" <?php echo ($profile['smoking'] == 'do smoke') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label  text-muted  fs-6" for="do smoke">
+                                                    Do smoke </label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="smoking" value="occasionally smoke" id=" occasionally smoke" <?php echo ($profile['smoking'] == 'occasionally smoke') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label  text-muted  fs-6" for="occasionally smoke">
+                                                    Occasionally smoke</label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="smoking" value="do not smoke" id="do not smoke" <?php echo ($profile['smoking'] == ' do not smoke') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label  text-muted  fs-6" for="do not smoke">
+                                                    Don't smoke</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Marital Status:   -->
+                                    <div class="col-lg-12 mt-2">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Marital Status:
+                                            </p>
+                                            <hr>
+                                            <!--  -->
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="single" id="single" <?php echo ($profile['marital_status'] == 'single') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="single">
+                                                    Single </label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="separated" id="separated" <?php echo ($profile['marital_status'] == 'separated') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="separated">
+                                                    Separated</label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="widowed" id="widowed" <?php echo ($profile['marital_status'] == 'widowed') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="widowed">
+                                                    Widowed</label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="divorced" id="divorced" <?php echo ($profile['marital_status'] == 'divorced') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="divorced">
+                                                    Divorced</label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="other" id="other" <?php echo ($profile['marital_status'] == 'other') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="other">
+                                                    Other</label>
+                                            </div>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="prefer not to say" id="prefer not to say" <?php echo ($profile['marital_status'] == 'prefer not to say') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label text-muted  fs-6" for="prefer not to say">
+                                                    Prefer not to say</label>
                                             </div>
                                         </div>
 
-                                        <!-- my smoke   -->
+                                    </div>
+                                    <!-- Do you want (more) children?  -->
+                                    <div class="col-lg-12 mt-2">
+                                        <div class="mb-3">
+                                            <p class="text-muted">Do you want (more) children?
+                                            </p>
+                                            <hr>
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="children" value="yes" id="yes" <?php echo ($profile['children'] == 'yes') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label  text-muted  fs-6" for="yes">
+                                                    Yes </label>
+                                            </div>
+
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="children" value="not sure" id="not sure" <?php echo ($profile['children'] == 'not sure') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label  text-muted  fs-6" for="not sure">
+                                                    Not Sure</label>
+                                            </div>
+
+                                            <div class="form-check form-check-inline me-5">
+                                                <input class="form-check-input fs-5 highlight-radio" type="radio" name="children" value="no" id="no" <?php echo ($profile['children'] == 'not') ? 'checked' : ''; ?>>
+                                                <label class="form-check-label  text-muted  fs-6" for="no">
+                                                    No</label>
+                                            </div>
+
+
+                                        </div>
+                                        <!--Relationship you're looking for:    -->
                                         <div class="col-lg-12 mt-2">
                                             <div class="mb-3">
-                                                <p class="text-muted">Do you smoke?</p>
+                                                <p class="text-muted">Relationship you're looking for:</p>
                                                 <hr>
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="smoking" value="do smoke" id="do smoke">
-                                                    <label class="form-check-label  text-muted  fs-6" for="do smoke">
-                                                        Do smoke </label>
+                                                    <input class="form-check-input fs-5 highlight-radio" name="relationshipLooking[]" type="checkbox" id="marriage" value="marriage" <?php echo (in_array('marriage', explode(',', $profile['relationship_looking']))) ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="marriage">Marriage</label>
                                                 </div>
                                                 <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="smoking" value="occasionally smoke id=" occasionally smoke">
-                                                    <label class="form-check-label  text-muted  fs-6" for="occasionally smoke">
-                                                        Occasionally smoke</label>
+                                                    <input class="form-check-input fs-5 highlight-radio" name="relationshipLooking[]" type="checkbox" id="friendship" value="friendship" <?php echo (in_array('friendship', explode(',', $profile['relationship_looking']))) ? 'checked' : ''; ?>>
+                                                    <label class="form-check-label text-muted fs-6" for="friendship">Friendship</label>
                                                 </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="smoking" value="do not smoke" id="do not smoke">
-                                                    <label class="form-check-label  text-muted  fs-6" for="do not smoke">
-                                                        Don't smoke</label>
-                                                </div>
+
                                             </div>
                                         </div>
 
-                                        <!-- Marital Status:   -->
-                                        <div class="col-lg-12 mt-2">
-                                            <div class="mb-3">
-                                                <p class="text-muted">Marital Status:
-                                                </p>
-                                                <hr>
-                                                <!--  -->
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="single" id="single">
-                                                    <label class="form-check-label text-muted  fs-6" for="single">
-                                                        Single </label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="separated" id="separated">
-                                                    <label class="form-check-label text-muted  fs-6" for="separated">
-                                                        Separated</label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="widowed" id="widowed">
-                                                    <label class="form-check-label text-muted  fs-6" for="widowed">
-                                                        Widowed</label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="divorced" id="divorced">
-                                                    <label class="form-check-label text-muted  fs-6" for="divorced">
-                                                        Divorced</label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="other" id="other">
-                                                    <label class="form-check-label text-muted  fs-6" for="other">
-                                                        Other</label>
-                                                </div>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="maritalStatus" value="prefer not to say" id="prefer not to say">
-                                                    <label class="form-check-label text-muted  fs-6" for="prefer not to say">
-                                                        Prefer not to say</label>
-                                                </div>
-                                            </div>
 
+                                        <!-- Save Profile Button -->
+                                        <div class="row mb-3">
+                                            <div class="col-lg-12 text-center">
+                                                <button type="submit" id="btnSaveProfile" name="btnSaveProfile" class="btn btn-primary">Save Profile</button>
+                                            </div>
                                         </div>
-                                        <!-- Do you want (more) children?  -->
-                                        <div class="col-lg-12 mt-2">
-                                            <div class="mb-3">
-                                                <p class="text-muted">Do you want (more) children?
-                                                </p>
-                                                <hr>
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="children" value="yes" id="yes">
-                                                    <label class="form-check-label  text-muted  fs-6" for="yes">
-                                                        Yes </label>
-                                                </div>
-
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="children" value="not sure" id="not sure">
-                                                    <label class="form-check-label  text-muted  fs-6" for="not sure">
-                                                        Not Sure</label>
-                                                </div>
-
-                                                <div class="form-check form-check-inline me-5">
-                                                    <input class="form-check-input fs-5 highlight-radio" type="radio" name="children" value="no" id="no">
-                                                    <label class="form-check-label  text-muted  fs-6" for="no">
-                                                        No</label>
-                                                </div>
-
-
-                                            </div>
-                                            <!--Relationship you're looking for:    -->
-                                            <div class="col-lg-12 mt-2">
-                                                <div class="mb-3">
-                                                    <p class="text-muted">Relationship you're looking for:</p>
-                                                    <hr>
-                                                    <div class="form-check form-check-inline me-5">
-                                                        <input class="form-check-input fs-5 highlight-radio" name="relationshipLooking" type="checkbox" id="marriage" value="marriage">
-                                                        <label class="form-check-label text-muted  fs-6" for="marriage">Marriage</label>
-                                                    </div>
-                                                    <div class="form-check form-check-inline me-5">
-                                                        <input class="form-check-input fs-5 highlight-radio" type="checkbox" name="relationshipLooking" id="friendship" value="friendship">
-                                                        <label class="form-check-label text-muted  fs-6" for="friendship">Friendship</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-
-                                            <!-- Save Profile Button -->
-                                            <div class="row mb-3">
-                                                <div class="col-lg-12 text-center">
-                                                    <button type="submit" id="btnSaveProfile" name="btnSaveProfile" class="btn btn-primary">Save Profile</button>
-                                                </div>
-                                            </div>
                                 </form>
 
                             </div>
@@ -899,7 +964,7 @@ try {
     </div>
 
     </div><!-- row end -->
-    </div>
+    </di>
     <?php include 'userlayout/footer.php'; ?>
 
     <!-- Add Bootstrap JavaScript bundle with Popper.js -->
