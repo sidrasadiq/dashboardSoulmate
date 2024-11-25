@@ -1,8 +1,162 @@
 <?php
-include 'userlayout/header.php';
+session_start();
+include 'layouts/config.php';
+include 'layouts/session.php';
+include 'layouts/main.php';
+include 'layouts/functions.php';
 
+
+
+
+// Check if user is logged in
+if (isset($_SESSION['user_id'])) {
+    $userId = $_SESSION['user_id'];
+
+    // Check if the connection is established
+    if (!$conn) {
+        die("Connection failed: " . mysqli_connect_error());
+    }
+    try {
+        // Query to fetch user details
+        $query = "
+            SELECT 
+                profiles.*, 
+                countries.country_name, 
+                cities.city_name,
+                states.state_name,
+                occupation.occupation_name,
+                users.username,
+                users.email,
+                nationality.nationality_name,
+                religion.religion_name,
+                qualifications.qualification_name,
+                user_cast.cast_name
+            FROM 
+                profiles
+            JOIN users ON profiles.user_id = users.id
+            LEFT JOIN countries ON profiles.country_id = countries.id
+            LEFT JOIN cities ON profiles.city_id = cities.id
+            LEFT JOIN states ON profiles.state_id = states.id
+            LEFT JOIN occupation ON profiles.occupation_id = occupation.id
+            LEFT JOIN nationality ON profiles.nationality_id = nationality.id
+            LEFT JOIN religion ON profiles.religion_id = religion.id
+            LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
+            LEFT JOIN user_cast ON profiles.cast_id = user_cast.id
+            WHERE profiles.user_id = ?";
+
+        $stmtUser = $conn->prepare($query);
+        if (!$stmtUser) {
+            throw new Exception("Query preparation failed: " . $conn->error);
+        }
+
+        $stmtUser->bind_param('i', $userId);
+        $stmtUser->execute();
+        $resultUser = $stmtUser->get_result();
+
+        if ($resultUser->num_rows > 0) {
+            $profile = $resultUser->fetch_assoc();
+        } else {
+            $_SESSION['message'] = ['type' => 'error', 'content' => 'Profile not found'];
+            header("Location: showprofile.php");
+            exit();
+        }
+
+        $stmtUser->close();
+    } catch (Exception $e) {
+        $_SESSION['message'] = ['type' => 'error', 'content' => 'Error: ' . $e->getMessage()];
+        header("Location: showprofile.php");
+        exit();
+    }
+} else {
+    $_SESSION['message'] = ['type' => 'error', 'content' => 'User not logged in'];
+    header("Location: login.php");
+    exit();
+}
+
+// Fetch data for dropdowns
+$countries = $cities = $states = $nationality = $religion = $qualifications = $occupations = $casts = [];
+
+try {
+    // fetch the country 
+    $queryCountries = "SELECT id, country_name FROM countries ORDER BY id ASC";
+    $stmtCountries = $conn->prepare($queryCountries);
+    $stmtCountries->execute();
+    $resultCountries = $stmtCountries->get_result();
+    while ($row = $resultCountries->fetch_assoc()) {
+        $countries[] = $row;
+    }
+    // fetch city 
+    $queryCities = "SELECT id, city_name FROM cities ORDER BY id ASC";
+    $stmtCities = $conn->prepare($queryCities);
+    $stmtCities->execute();
+    $resultCities = $stmtCities->get_result();
+    while ($row = $resultCities->fetch_assoc()) {
+        $cities[] = $row;
+    }
+
+    // fetch states
+    $queryStates = "SELECT id, state_name FROM states ORDER BY id ASC";
+    $stmtStates = $conn->prepare($queryStates);
+    $stmtStates->execute();
+    $resultStates = $stmtStates->get_result();
+    while ($row = $resultStates->fetch_assoc()) {
+        $states[] = $row;
+    }
+    // fetch nationalities
+    $queryNationalities = "SELECT id,  nationality_name FROM  nationality ORDER BY id ASC";
+    $stmtNationalities = $conn->prepare($queryNationalities);
+    $stmtNationalities->execute();
+    $resultNationalities = $stmtNationalities->get_result();
+    while ($row = $resultNationalities->fetch_assoc()) {
+        $nationalities[] = $row;
+    }
+    // fetch 	religion 
+    $queryReligions = "SELECT id,  religion_name FROM  religion ORDER BY id ASC";
+    $stmtReligions = $conn->prepare($queryReligions);
+    $stmtReligions->execute();
+    $resultReligions = $stmtReligions->get_result();
+    while ($row = $resultReligions->fetch_assoc()) {
+        $religions[] = $row;
+    }
+    // fetch 	qualification 
+    $queryQualifications = "SELECT id,  qualification_name FROM  qualifications ORDER BY id ASC";
+    $stmtQualifications = $conn->prepare($queryQualifications);
+    $stmtQualifications->execute();
+    $resultQualifications = $stmtQualifications->get_result();
+    while ($row = $resultQualifications->fetch_assoc()) {
+        $qualifications[] = $row;
+    }
+    // fetch 	occupation 
+    $queryOccupations = "SELECT id,  occupation_name FROM  occupation ORDER BY id ASC";
+    $stmtOccupations = $conn->prepare($queryOccupations);
+    $stmtOccupations->execute();
+    $resultOccupations = $stmtOccupations->get_result();
+    while ($row = $resultOccupations->fetch_assoc()) {
+        $occupations[] = $row;
+    }
+    // fetch 	user_cast 
+    $queryCasts  = "SELECT id,  cast_name FROM  user_cast ORDER BY id ASC";
+    $stmtCasts = $conn->prepare($queryCasts);
+    $stmtCasts->execute();
+    $resultCasts = $stmtCasts->get_result();
+    while ($row = $resultCasts->fetch_assoc()) {
+        $casts[] = $row;
+    }
+
+    $stmtCountries->close();
+    $stmtCities->close();
+    $stmtStates->close();
+    $stmtNationalities->close();
+    $stmtReligions->close();
+    $stmtQualifications->close();
+    $stmtOccupations->close();
+    $stmtCasts->close();
+} catch (Exception $e) {
+    $_SESSION['message'] = ['type' => 'error', 'content' => 'Error fetching dropdown data'];
+    header("Location: errorpage.php");
+    exit();
+}
 ?>
-
 
 
 <!DOCTYPE html>
@@ -76,7 +230,7 @@ include 'userlayout/header.php';
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="firstName" class="form-label text-muted">First Name:</label>
-                                                <input type="text" id="firstName" name="firstName" class="form-control" required placeholder="Enter  Your First Name">
+                                                <input type="text" value=" <?php echo htmlspecialchars($profile['first_name']); ?>" id="firstName" name="firstName" class="form-control" required placeholder="Enter  Your First Name">
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please fill this field.</div>
                                             </div>
@@ -85,7 +239,16 @@ include 'userlayout/header.php';
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="lastName" class="form-label text-muted">Last Name:</label>
-                                                <input type="text" id="lastName" name="lastName" class="form-control" required placeholder="Enter  Your Last Name">
+                                                <input type="text" value=" <?php echo htmlspecialchars($profile['last_name']); ?>" id="lastName" name="lastName" class="form-control" required placeholder="Enter  Your Last Name">
+                                                <div class="valid-feedback">Looks good!</div>
+                                                <div class="invalid-feedback">Please fill this field.</div>
+                                            </div>
+                                        </div>
+                                        <!-- User Name Input -->
+                                        <div class="col-lg-4">
+                                            <div class="mb-3">
+                                                <label for="userName" class="form-label text-muted">User Name:</label>
+                                                <input type="text" value=" <?php echo htmlspecialchars($profile['username']); ?>" id="userName" name="userName" class="form-control" required placeholder="Enter  Your User Name">
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please fill this field.</div>
                                             </div>
@@ -94,7 +257,12 @@ include 'userlayout/header.php';
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="dob" class="form-label text-muted">Date Of Birth:</label>
-                                                <input type="date" id="dob" name="dob" class="form-control text-muted" required>
+                                                <input type="date"
+                                                    value="<?php echo isset($profile['date_of_birth']) ? htmlspecialchars(date('Y-m-d', strtotime($profile['date_of_birth']))) : ''; ?>"
+                                                    id="dob"
+                                                    name="dob"
+                                                    class="form-control text-muted"
+                                                    required disabled>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please fill this field.</div>
                                             </div>
@@ -104,30 +272,27 @@ include 'userlayout/header.php';
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="gender" class="form-label text-muted">I'm a:</label>
-                                                <select id="gender" name="gender" class="form-select text-muted" required>
-                                                    <option selected disabled value="">Select Gender</option>
-                                                    <option value="male">Male</option>
-                                                    <option value="female">Female</option>
-                                                </select>
+                                                <input type="text" value=" <?php echo htmlspecialchars($profile['gender']); ?>" id="gender" name="gender" class="form-control" required disabled>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
                                             </div>
                                         </div>
 
-                                        <!-- contact Number -->
+                                        <!-- Contact Number -->
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="contactNum" class="form-label text-muted">Contact Number:</label>
-                                                <input type="number" id="contactNum" name="contactNum" class="form-control" required placeholder="Enter  Your  Contact Number">
+                                                <input type="number" value="<?php echo htmlspecialchars($profile['contact_number']); ?>" id="contactNum" name="contactNum" class="form-control" required placeholder="Enter Your Contact Number">
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please fill this field.</div>
                                             </div>
                                         </div>
+
                                         <!-- WhatsApp Number -->
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="WhatsNum" class="form-label text-muted">WhatsApp Number:</label>
-                                                <input type="number" id="WhatsNum" name="WhatsNum" class="form-control" required placeholder="Enter  Your  WhatsApp Number">
+                                                <input type="number" value="<?php echo htmlspecialchars($profile['whatsapp_contact']); ?>" id="WhatsNum" name="WhatsNum" class="form-control" required placeholder="Enter  Your  WhatsApp Number">
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please fill this field.</div>
                                             </div>
@@ -136,32 +301,43 @@ include 'userlayout/header.php';
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="cnicNum" class="form-label text-muted">CNIC Number:</label>
-                                                <input type="text" id="cnicNum" name="cnicNum" class="form-control" required placeholder="Enter  Your  CNIC Number">
+                                                <input type="number" value="<?php echo htmlspecialchars($profile['cnic']); ?>" id="cnicNum" name="cnicNum" class="form-control" required placeholder="Enter  Your  CNIC Number">
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please fill this field.</div>
                                             </div>
                                         </div>
-                                        <!-- cast Dropdown -->
+
+                                        <!-- Cast Dropdown -->
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="cast" class="form-label text-muted">Cast:</label>
                                                 <select id="cast" name="cast" class="form-select text-muted" required>
                                                     <option selected disabled value="">Select Cast</option>
-                                                    <option value="cast1">cast1</option>
-                                                    <option value="cast2">cast2</option>
+                                                    <?php foreach ($casts as $cast): ?>
+                                                        <option value="<?php echo htmlspecialchars($cast['id']); ?>"
+                                                            <?php echo (isset($profile['cast_id']) && $cast['id'] == $profile['cast_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($cast['cast_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
-                                                <div class="invalid-feedback">Please select a project.</div>
+                                                <div class="invalid-feedback">Please select a cast.</div>
                                             </div>
                                         </div>
+
+
+
                                         <!-- Nationality Dropdown -->
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="nationality" class="form-label text-muted">Nationality:</label>
                                                 <select id="nationality" name="nationality" class="form-select text-muted" required>
-                                                    <option selected disabled value="">Select Nationality</option>
-                                                    <option value="nationality1">nationality1</option>
-                                                    <option value="nationality2">nationalityt2</option>
+                                                    <?php foreach ($nationalities as $nationality): ?>
+                                                        <option value="<?php echo htmlspecialchars($nationality['id']); ?>"
+                                                            <?php echo (isset($profile['nationality_id']) && $nationality['id'] == $profile['nationality_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($nationality['nationality_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
@@ -172,9 +348,12 @@ include 'userlayout/header.php';
                                             <div class="mb-3">
                                                 <label for="religion" class="form-label text-muted">Religion:</label>
                                                 <select id="religion" name="religion" class="form-select text-muted" required>
-                                                    <option selected disabled value="">Select Religion</option>
-                                                    <option value="religion1">religion1</option>
-                                                    <option value="religion2">religion2</option>
+                                                    <?php foreach ($religions as $religion): ?>
+                                                        <option value="<?php echo htmlspecialchars($religion['id']); ?>"
+                                                            <?php echo (isset($profile['religion_id']) && $religion['id'] == $profile['religion_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($religion['religion_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
@@ -186,8 +365,12 @@ include 'userlayout/header.php';
                                                 <label for="qualification" class="form-label text-muted">Qualification:</label>
                                                 <select id="qualification" name="qualification" class="form-select text-muted" required>
                                                     <option selected disabled value="">Select Qualification</option>
-                                                    <option value="qualification1">qualification1</option>
-                                                    <option value="qualificationn2">qualification2</option>
+                                                    <?php foreach ($qualifications as $qualification): ?>
+                                                        <option value="<?php echo htmlspecialchars($qualification['id']); ?>"
+                                                            <?php echo (isset($profile['qualification_id']) && $qualification['id'] == $profile['qualification_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($qualification['qualification_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
@@ -197,7 +380,7 @@ include 'userlayout/header.php';
                                         <div class="col-lg-4">
                                             <div class="mb-3">
                                                 <label for="interests" class="form-label text-muted">Interests:</label>
-                                                <input type="text" id="interests" name="interests" class="form-control" required placeholder="Enter  Your Interests">
+                                                <input type="text" value=" <?php echo htmlspecialchars($profile['interests']); ?>" id="interests" name="interests" class="form-control" required placeholder="Enter  Your Interests">
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
                                             </div>
@@ -208,8 +391,12 @@ include 'userlayout/header.php';
                                                 <label for="country" class="form-label text-muted">Country:</label>
                                                 <select id="country" name="country" class="form-select text-muted" required>
                                                     <option selected disabled value="">Select Country</option>
-                                                    <option value="country1">country1</option>
-                                                    <option value="country2">country2</option>
+                                                    <?php foreach ($countries as $country): ?>
+                                                        <option value="<?php echo htmlspecialchars($country['id']); ?>"
+                                                            <?php echo (isset($profile['country_id']) && $country['id'] == $profile['country_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($country['country_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
@@ -221,8 +408,12 @@ include 'userlayout/header.php';
                                                 <label for="state" class="form-label text-muted">State:</label>
                                                 <select id="state" name="state" class="form-select text-muted" required>
                                                     <option selected disabled value="">Select State</option>
-                                                    <option value="state1">state1</option>
-                                                    <option value="state2">state2</option>
+                                                    <?php foreach ($states as $state): ?>
+                                                        <option value="<?php echo htmlspecialchars($state['id']); ?>"
+                                                            <?php echo (isset($profile['state_id']) && $state['id'] == $profile['state_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($state['state_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
@@ -234,28 +425,43 @@ include 'userlayout/header.php';
                                                 <label for="city" class="form-label text-muted">City:</label>
                                                 <select id="city" name="city" class="form-select text-muted" required>
                                                     <option selected disabled value="">Select City</option>
-                                                    <option value="city1">city1</option>
-                                                    <option value="city2">city2</option>
+                                                    <?php foreach ($cities as $city): ?>
+                                                        <option value="<?php echo htmlspecialchars($city['id']); ?>"
+                                                            <?php echo (isset($profile['city_id']) && $city['id'] == $profile['city_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($city['city_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
                                             </div>
                                         </div>
-                                        <!-- Profile Picture -->
                                         <div class="col-lg-4">
                                             <div class="mb-2">
                                                 <label for="userProfilePic" class="form-label text-muted">Profile Picture *</label>
-                                                <input type="file" id="userProfilePic" name="userProfilePic" class="form-control" accept="image/*" onchange="displayImage(this)">
-                                                <img id="profilePicPreview" src="" alt="Profile Picture" class="img-thumbnail mt-2" style="max-width: 150px;">
+                                                <input type="file" id="userProfilePic" name="userProfilePic" class="form-control" accept="image/*" onchange="displayImage(this)" required>
+
+                                                <?php
+                                                // Handle default image if the profile_picture field is empty or null
+                                                $profilePicturePath = !empty($profile['profile_picture']) ? htmlspecialchars($profile['profile_picture']) : 'path/to/default-profile.png';
+                                                ?>
+
+                                                <img id="profilePicPreview"
+                                                    src="uploads/<?php echo $profilePicturePath; ?>"
+                                                    alt="Profile Picture"
+                                                    class="img-thumbnail mt-2"
+                                                    style="max-width: 150px; width: 100%;">
+
                                                 <div class="valid-feedback">Looks good!</div>
-                                                <div class="invalid-feedback" id="imageError">Please fill this field.</div>
+                                                <div class="invalid-feedback" id="imageError">Please upload a profile picture.</div>
                                             </div>
                                         </div>
+
                                         <!-- preferences -->
                                         <div class="col-lg-4">
                                             <div class="mb-2">
                                                 <label for="preferences" class="form-label text-muted">Preferences</label>
-                                                <input type="text" id="preferences" name="preferences" class="form-control">
+                                                <input type="text" value=" <?php echo htmlspecialchars($profile['preferences']); ?>" id="preferences" name="preferences" class="form-control">
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback" id="imageError">Please fill this field.</div>
                                             </div>
@@ -266,8 +472,12 @@ include 'userlayout/header.php';
                                                 <label for="occupation" class="form-label text-muted">Occupation:</label>
                                                 <select id="occupation" name="occupation" class="form-select text-muted" required>
                                                     <option selected disabled value="">Select Occupation</option>
-                                                    <option value="occupation1">occupation1</option>
-                                                    <option value="occupation2">occupation2</option>
+                                                    <?php foreach ($occupations as $occupation): ?>
+                                                        <option value="<?php echo htmlspecialchars($occupation['id']); ?>"
+                                                            <?php echo (isset($profile['occupation_id']) && $occupation['id'] == $profile['occupation_id']) ? 'selected' : ''; ?>>
+                                                            <?php echo htmlspecialchars($occupation['occupation_name']); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
                                                 </select>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please select a project.</div>
@@ -276,7 +486,7 @@ include 'userlayout/header.php';
                                         <!-- Bio Details Input -->
                                         <div class="col-lg-12">
                                             <div class="mb-3">
-                                                <textarea id="taskDetails" name="taskDetails" class="form-control" rows="3" placeholder="A little about yourself" required></textarea>
+                                                <textarea id="taskDetails" name="taskDetails" class="form-control" rows="3" placeholder="A little about yourself" required> <?php echo htmlspecialchars($profile['bio']); ?></textarea>
                                                 <div class="valid-feedback">Looks good!</div>
                                                 <div class="invalid-feedback">Please fill this field.</div>
                                             </div>
@@ -419,11 +629,42 @@ include 'userlayout/header.php';
                                                 <div class="mb-3">
                                                     <p class="text-muted">Height:</p>
                                                     <hr>
-                                                    <select id="height" name="occupation" class="form-select text-muted" required>
-                                                        <option selected disabled value="">Select Height</option>
-                                                        <option value="height1">height1</option>
-                                                        <option value="height2">height2</option>
+                                                    <select id="height" name="height" class="form-select text-muted" required>
+                                                        <option selected disabled value=""> Please Select... </option>
+                                                        <option value="4'7 (140 cm)">4'7" (140 cm)</option>
+                                                        <option value="4'8 (143 cm)">4'8" (143 cm)</option>
+                                                        <option value="4'9 (145 cm)">4'9" (145 cm)</option>
+                                                        <option value="4'10 (148 cm)">4'10" (148 cm)</option>
+                                                        <option value="4'11 (150 cm)">4'11" (150 cm)</option>
+                                                        <option value="5' (153 cm)">5' (153 cm)</option>
+                                                        <option value="5'1 (155 cm)">5'1" (155 cm)</option>
+                                                        <option value="5'2 (158 cm)">5'2" (158 cm)</option>
+                                                        <option value="5'3 (161 cm)">5'3" (161 cm)</option>
+                                                        <option value="5'4 (163 cm)">5'4" (163 cm)</option>
+                                                        <option value="5'5 (166 cm)">5'5" (166 cm)</option>
+                                                        <option value="5'6 (168 cm)">5'6" (168 cm)</option>
+                                                        <option value="5'7 (171 cm)">5'7" (171 cm)</option>
+                                                        <option value="5'8 (173 cm)">5'8" (173 cm)</option>
+                                                        <option value="5'9 (176 cm)">5'9" (176 cm)</option>
+                                                        <option value="5'10 (178 cm)">5'10" (178 cm)</option>
+                                                        <option value="5'11 (181 cm)">5'11" (181 cm)</option>
+                                                        <option value="6 (183 cm)">6' (183 cm)</option>
+                                                        <option value="6'1 (186 cm)">6'1" (186 cm)</option>
+                                                        <option value="6'2  (188 cm)">6'2" (188 cm)</option>
+                                                        <option value="6'3  (191 cm)">6'3" (191 cm)</option>
+                                                        <option value="6'4  (194 cm)">6'4" (194 cm)</option>
+                                                        <option value="6'5  (196 cm)">6'5" (196 cm)</option>
+                                                        <option value="6'6  (199 cm)">6'6" (199 cm)</option>
+                                                        <option value="6'7  (201 cm)">6'7" (2011 cm)</option>
+                                                        <option value="6'8  (204 cm)">6'8" (204 cm)</option>
+                                                        <option value="6'9  (206 cm)">6'9" (206 cm)</option>
+                                                        <option value="6'10  (209 cm)">6'10" (209 cm)</option>
+                                                        <option value="6'11  (211 cm)">6'11" (211 cm)</option>
+                                                        <option value="7  (214 cm)">7' (214 cm)</option>
+                                                        <option value="7'1  (216 cm)">7'1" (216 cm)</option>
+                                                        <option value="7'2  (219 cm)">7'2" (219 cm)</option>
                                                     </select>
+
                                                     <div class="valid-feedback">Looks good!</div>
                                                     <div class="invalid-feedback">Please select a project.</div>
                                                 </div>
@@ -434,9 +675,68 @@ include 'userlayout/header.php';
                                                     <p class="text-muted">Weight:</p>
                                                     <hr>
                                                     <select id="weight" name="occupation" class="form-select text-muted" required>
-                                                        <option selected disabled value="">Select Weight</option>
-                                                        <option value="weight1">weight1</option>
-                                                        <option value="weight2">weight2</option>
+                                                        <option selected disabled value="">Please Select... </option>
+                                                        <option value="40kg (88Ib)">40kg (88Ib)</option>
+                                                        <option value="41kg (90Ib)">41kg (90Ib)</option>
+                                                        <option value="42kg (93Ib)">42kg (93Ib)</option>
+                                                        <option value="43kg (95Ib)">43kg (95Ib)</option>
+                                                        <option value="44kg (97Ib)">44kg (97Ib)</option>
+                                                        <option value="45kg (99Ib)">45kg (99Ib)</option>
+                                                        <option value="46kg (101Ib)">46kg (101Ib)</option>
+                                                        <option value="47kg (104Ib)">47kg (104Ib)</option>
+                                                        <option value="48kg (106Ib)">48kg (106Ib)</option>
+                                                        <option value="49kg (108Ib)">49kg (108Ib)</option>
+                                                        <option value="50kg (110Ib)">50kg (110Ib)</option>
+                                                        <option value="51kg (112Ib)">51kg (112Ib)</option>
+                                                        <option value="52kg (115Ib)">52kg (115Ib)</option>
+                                                        <option value="53kg (117Ib)">53kg (117Ib)</option>
+                                                        <option value="54kg (119Ib)">54kg (119Ib)</option>
+                                                        <option value="55kg (121Ib)">55kg (121Ib)</option>
+                                                        <option value="56kg (123Ib)">56kg (123Ib)</option>
+                                                        <option value="57kg (126Ib)">57kg (126Ib)</option>
+                                                        <option value="58kg (128Ib)">58kg (128Ib)</option>
+                                                        <option value="59kg (130Ib)">59kg (130Ib)</option>
+                                                        <option value="60kg (132Ib)">60kg (132Ib)</option>
+                                                        <option value="61kg (134Ib)">61kg (134Ib)</option>
+                                                        <option value="62kg (137Ib)">62kg (137Ib)</option>
+                                                        <option value="63kg (139Ib)">63kg (139Ib)</option>
+                                                        <option value="64kg (141Ib)">64kg (141Ib)</option>
+                                                        <option value="65kg (143Ib)">65kg (143Ib)</option>
+                                                        <option value="66kg (146Ib)">66kg (146Ib)</option>
+                                                        <option value="67kg (148Ib)">67kg (148Ib)</option>
+                                                        <option value="68kg (150Ib)">68kg (150Ib)</option>
+                                                        <option value="69kg (152Ib)">69kg (152Ib)</option>
+                                                        <option value="70kg (154Ib)">70kg (154Ib)</option>
+                                                        <option value="71kg (157Ib)">71kg (157Ib)</option>
+                                                        <option value="72kg (159Ib)">72kg (159Ib)</option>
+                                                        <option value="73kg (161Ib)">73kg (161Ib)</option>
+                                                        <option value="74kg (163Ib)">74kg (163Ib)</option>
+                                                        <option value="75kg (165Ib)">75kg (165Ib)</option>
+                                                        <option value="76kg (168Ib)">76kg (168Ib)</option>
+                                                        <option value="77kg (170Ib)">77kg (170Ib)</option>
+                                                        <option value="78kg (172Ib)">78kg (172Ib)</option>
+                                                        <option value="79kg (174Ib)">79kg (174Ib)</option>
+                                                        <option value="80kg (176Ib)">80kg (176Ib)</option>
+                                                        <option value="81kg (179Ib)">81kg (179Ib)</option>
+                                                        <option value="82kg (181Ib)">82kg (181Ib)</option>
+                                                        <option value="83kg (183Ib">83kg (183Ib)</option>
+                                                        <option value="84kg (185Ib)">84kg (185Ib)</option>
+                                                        <option value="85kg (187Ib)">85kg (187Ib)</option>
+                                                        <option value="86kg (190Ib)">86kg (190Ib)</option>
+                                                        <option value="87kg (192Ib)">87kg (192Ib)</option>
+                                                        <option value="88kg (194Ib)">88kg (194Ib)</option>
+                                                        <option value="89kg (196Ib)">89kg (196Ib)</option>
+                                                        <option value="90kg (198Ib)">90kg (198Ib)</option>
+                                                        <option value="91kg (201Ib)">91kg (201Ib)</option>
+                                                        <option value="92kg (203Ib)">92kg (203Ib)</option>
+                                                        <option value="93kg (205Ib)">93kg (205Ib)</option>
+                                                        <option value="94kg (207Ib)">94kg (207Ib)</option>
+                                                        <option value="95kg (209Ib)">95kg (209Ib)</option>
+                                                        <option value="96kg (212Ib)">96kg (212Ib)</option>
+                                                        <option value="97kg (214Ib)">97kg (214Ib)</option>
+                                                        <option value="98kg (216Ib)">98kg (216Ib)</option>
+                                                        <option value="99kg (218Ib)">99kg (218Ib)</option>
+                                                        <option value="100kg (220Ib)">100kg (220Ib)</option>
                                                     </select>
                                                     <div class="valid-feedback">Looks good!</div>
                                                     <div class="invalid-feedback">Please select a project.</div>
@@ -605,7 +905,18 @@ include 'userlayout/header.php';
     <!-- Add Bootstrap JavaScript bundle with Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"></script>
-</body>
+    <script>
+        function displayImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profilePicPreview');
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 
 </html>
 </body>
