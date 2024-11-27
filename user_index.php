@@ -134,7 +134,7 @@ if (isset($_SESSION['user_id'])) {
                 <h5 class="mt-4">
                     <?php echo $_SESSION['username']; ?>
                 </h5>
-                <button type="submit " class="btn btn-comp-prof"> Next Step: Complete your personality profile</button>
+                <a href="editPersonalityInfo.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" class="btn btn-comp-prof">Next Step: Complete your personality profile</a>
                 <p class="mt-2">Learn about membership features</p>
                 <div class=" emoji">
                     <i class="bi bi-hand-thumbs-up"></i>
