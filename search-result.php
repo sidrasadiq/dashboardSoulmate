@@ -180,7 +180,7 @@
                             // Display date of birth, city, and country
                             echo '<p class="card-text text-muted">';
                             echo isset($row['date_of_birth']) && !empty($row['date_of_birth'])
-                                ? htmlspecialchars((new DateTime())->diff(new DateTime($row['date_of_birth']))->y . " . " . $row['city_name'] . ", " . $row['country_name'])
+                                ? htmlspecialchars((new DateTime())->diff(new DateTime($row['date_of_birth']))->y . " . " . $row['city_name'] . "," . $row['state_name'] . ", " . $row['country_name'])
                                 : 'No data available';
                             echo '</p>';
 

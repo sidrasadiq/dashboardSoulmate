@@ -1,12 +1,11 @@
 <?php
+include 'userlayout/header.php';
+
 session_start();
 include 'layouts/config.php';
 include 'layouts/session.php';
 include 'layouts/main.php';
 include 'layouts/functions.php';
-
-
-
 
 // Check if user is logged in
 if (isset($_SESSION['user_id'])) {
@@ -16,6 +15,7 @@ if (isset($_SESSION['user_id'])) {
     if (!$conn) {
         die("Connection failed: " . mysqli_connect_error());
     }
+
     try {
         // Query to fetch user details
         $query = "
@@ -74,10 +74,10 @@ if (isset($_SESSION['user_id'])) {
 }
 
 // Fetch data for dropdowns
-$countries = $cities = $states = $nationality = $religion = $qualifications = $occupations = $casts = [];
+$countries = $cities = $states = $nationalities = $religions = $qualifications = $occupations = $casts = [];
 
 try {
-    // fetch the country 
+    // Fetch countries
     $queryCountries = "SELECT id, country_name FROM countries ORDER BY id ASC";
     $stmtCountries = $conn->prepare($queryCountries);
     $stmtCountries->execute();
@@ -85,7 +85,8 @@ try {
     while ($row = $resultCountries->fetch_assoc()) {
         $countries[] = $row;
     }
-    // fetch city 
+
+    // Fetch cities
     $queryCities = "SELECT id, city_name FROM cities ORDER BY id ASC";
     $stmtCities = $conn->prepare($queryCities);
     $stmtCities->execute();
@@ -94,7 +95,7 @@ try {
         $cities[] = $row;
     }
 
-    // fetch states
+    // Fetch states
     $queryStates = "SELECT id, state_name FROM states ORDER BY id ASC";
     $stmtStates = $conn->prepare($queryStates);
     $stmtStates->execute();
@@ -102,40 +103,45 @@ try {
     while ($row = $resultStates->fetch_assoc()) {
         $states[] = $row;
     }
-    // fetch nationalities
-    $queryNationalities = "SELECT id,  nationality_name FROM  nationality ORDER BY id ASC";
+
+    // Fetch nationalities
+    $queryNationalities = "SELECT id, nationality_name FROM nationality ORDER BY id ASC";
     $stmtNationalities = $conn->prepare($queryNationalities);
     $stmtNationalities->execute();
     $resultNationalities = $stmtNationalities->get_result();
     while ($row = $resultNationalities->fetch_assoc()) {
         $nationalities[] = $row;
     }
-    // fetch 	religion 
-    $queryReligions = "SELECT id,  religion_name FROM  religion ORDER BY id ASC";
+
+    // Fetch religions
+    $queryReligions = "SELECT id, religion_name FROM religion ORDER BY id ASC";
     $stmtReligions = $conn->prepare($queryReligions);
     $stmtReligions->execute();
     $resultReligions = $stmtReligions->get_result();
     while ($row = $resultReligions->fetch_assoc()) {
         $religions[] = $row;
     }
-    // fetch 	qualification 
-    $queryQualifications = "SELECT id,  qualification_name FROM  qualifications ORDER BY id ASC";
+
+    // Fetch qualifications
+    $queryQualifications = "SELECT id, qualification_name FROM qualifications ORDER BY id ASC";
     $stmtQualifications = $conn->prepare($queryQualifications);
     $stmtQualifications->execute();
     $resultQualifications = $stmtQualifications->get_result();
     while ($row = $resultQualifications->fetch_assoc()) {
         $qualifications[] = $row;
     }
-    // fetch 	occupation 
-    $queryOccupations = "SELECT id,  occupation_name FROM  occupation ORDER BY id ASC";
+
+    // Fetch occupations
+    $queryOccupations = "SELECT id, occupation_name FROM occupation ORDER BY id ASC";
     $stmtOccupations = $conn->prepare($queryOccupations);
     $stmtOccupations->execute();
     $resultOccupations = $stmtOccupations->get_result();
     while ($row = $resultOccupations->fetch_assoc()) {
         $occupations[] = $row;
     }
-    // fetch 	user_cast 
-    $queryCasts  = "SELECT id,  cast_name FROM  user_cast ORDER BY id ASC";
+
+    // Fetch casts
+    $queryCasts = "SELECT id, cast_name FROM user_cast ORDER BY id ASC";
     $stmtCasts = $conn->prepare($queryCasts);
     $stmtCasts->execute();
     $resultCasts = $stmtCasts->get_result();
@@ -143,6 +149,7 @@ try {
         $casts[] = $row;
     }
 
+    // Close all statements
     $stmtCountries->close();
     $stmtCities->close();
     $stmtStates->close();
@@ -152,11 +159,123 @@ try {
     $stmtOccupations->close();
     $stmtCasts->close();
 } catch (Exception $e) {
-    $_SESSION['message'] = ['type' => 'error', 'content' => 'Error fetching dropdown data'];
-    header("Location: errorpage.php");
+    $_SESSION['message'] = ['type' => 'error', 'content' => 'Error fetching dropdown data: ' . $e->getMessage()];
+    header("Location: editprofile.php");
     exit();
 }
+
+// Handle profile update
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['btnUpdateProfile'])) {
+    // Process form submission logic
+    $firstName = isset($_POST['firstName']) ? intval($_POST['firstName']) : '';
+    $lastName = isset($_POST['lastName']) ? intval($_POST['lastName']) : '';
+    $userName = isset($_POST['userName']) ? intval($_POST['userName']) : '';
+    $dob = isset($_POST['dob']) ? intval($_POST['dob']) : '';
+    $gender = isset($_POST['gender']) ? intval($_POST['gender']) : '';
+    $contactNum = isset($_POST['contactNum']) ? intval($_POST['contactNum']) : '';
+    $WhatsNum = isset($_POST['WhatsNum']) ? intval($_POST['WhatsNum']) : '';
+    $cnicNum = isset($_POST['cnicNum']) ? intval($_POST['cnicNum']) : '';
+    $cast = isset($_POST['cast']) ? intval($_POST['cast']) : '';
+    $nationality = isset($_POST['nationality']) ? intval($_POST['nationality']) : '';
+    $religion = isset($_POST['religion']) ? intval($_POST['religion']) : '';
+    $qualification = isset($_POST['qualification']) ? intval($_POST['qualification']) : '';
+    $interests = isset($_POST['interests']) ? intval($_POST['interests']) : '';
+    $country = isset($_POST['country']) ? intval($_POST['country']) : '';
+    $state = isset($_POST['state']) ? intval($_POST['state']) : '';
+    $city = isset($_POST['city']) ? intval($_POST['city']) : '';
+    $userProfilePic = isset($_POST['userProfilePic']) ? intval($_POST['userProfilePic']) : '';
+    $occupation = isset($_POST['occupation']) ? intval($_POST['occupation']) : '';
+    $BioDetails = isset($_POST['BioDetails']) ? intval($_POST['BioDetails']) : '';
+    $bodyType = isset($_POST['bodyType']) ? intval($_POST['bodyType']) : '';
+    $ethnicity = isset($_POST['ethnicity']) ? intval($_POST['ethnicity']) : '';
+    $appearance = isset($_POST['appearance']) ? intval($_POST['appearance']) : '';
+    $height = isset($_POST['height']) ? intval($_POST['height']) : '';
+    $weight = isset($_POST['weight']) ? intval($_POST['weight']) : '';
+    $drinkAlcohol = isset($_POST['drinkAlcohol']) ? intval($_POST['drinkAlcohol']) : '';
+    $smoking = isset($_POST['smoking']) ? intval($_POST['smoking']) : '';
+    $maritalStatus = isset($_POST['maritalStatus']) ? intval($_POST['maritalStatus']) : '';
+    $children = isset($_POST['children']) ? intval($_POST['children']) : '';
+    $relationshipLooking = isset($_POST['relationshipLooking']) ? intval($_POST['relationshipLooking']) : '';
+    $profileId = isset($_GET['id']) ? intval($_GET['id']) : ''; // Profile ID
+    try {
+        $conn->begin_transaction(MYSQLI_TRANS_START_READ_WRITE);
+
+        // Prepare and execute the update query here
+        // ... (update logic is untouched for brevity)
+        $query = "
+UPDATE profiles
+SET
+first_name = ?, last_name = ?, user_id = ?, date_of_birth = ?, gender = ?,
+contact_number = ?, whatsapp_contact = ?, cnic= ?, cast_id = ?,
+nationality_id = ?, religion_id = ?, qualification_id = ?, interests = ?,
+country_id = ?, state_id = ?, city_id = ?, profile_picture = ?, occupation_id = ?,
+bio = ?, body_type = ?, ethnicity = ?, my_appearance = ?, height = ?,
+weight = ?, drink_alcohol = ?, smoking = ?, marital_status = ?, children = ?,
+relationship_looking = ?
+WHERE id = ? AND user_id = ?";
+
+
+        $stmt = $conn->prepare($query);
+
+        if ($stmt === false) {
+            die('MySQL prepare error: ' . $conn->error);
+        }
+
+        // Bind parameters and execute statement
+        $stmt->bind_param(
+            "ssissssssssssssssssssssssssiiii",
+            $firstName,
+            $lastName,
+            $userName,
+            $dob,
+            $gender,
+            $contactNum,
+            $WhatsNum,
+            $cnicNum,
+            $cast,
+            $nationality,
+            $religion,
+            $qualification,
+            $interests,
+            $country,
+            $state,
+            $city,
+            $userProfilePic,
+            $occupation,
+            $BioDetails,
+            $bodyType,
+            $ethnicity,
+            $appearance,
+            $height,
+            $weight,
+            $drinkAlcohol,
+            $smoking,
+            $maritalStatus,
+            $children,
+            $relationshipLooking,
+            $profileId,
+            $userId
+        );
+
+        if (!$stmt->execute()) {
+            throw new Exception('Execute statement failed: ' . $stmt->error);
+        }
+
+        // Commit transaction
+        $conn->commit();
+
+        $_SESSION['message'] = ['type' => 'success', 'content' => 'Profile updated successfully.'];
+        header("Location: showprofile.php");
+        exit();
+    } catch (Exception $e) {
+        $conn->rollback();
+        $_SESSION['message'] = ['type' => 'error', 'content' => 'Error updating profile: ' . $e->getMessage()];
+        header("Location: editprofile.php");
+        exit();
+    }
+}
 ?>
+
 
 
 <!DOCTYPE html>
@@ -223,6 +342,8 @@ try {
                         <div class="row">
                             <div>
                                 <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post" class="needs-validation" novalidate enctype="multipart/form-data">
+                                    <input type="hidden" name="userId" value="<?php echo htmlspecialchars($userId); ?>">
+
                                     <div class="row mb-3">
 
 
@@ -949,7 +1070,7 @@ try {
                                         <!-- Save Profile Button -->
                                         <div class="row mb-3">
                                             <div class="col-lg-12 text-center">
-                                                <button type="submit" id="btnSaveProfile" name="btnSaveProfile" class="btn btn-primary">Save Profile</button>
+                                                <button type="submit" id="btnUpdateProfile" name="btnUpdateProfile" class="btn btn-primary">Save Profile</button>
                                             </div>
                                         </div>
                                 </form>

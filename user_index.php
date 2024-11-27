@@ -317,24 +317,29 @@ if (isset($_SESSION['user_id'])) {
         <div class="row">
             <?php
             $query = "
-            SELECT 
+     SELECT 
                 profiles.*, 
                 countries.country_name, 
                 cities.city_name,
+                states.state_name,
+                occupation.occupation_name,
                 users.username,
                 users.email,
-                users.password,
                 nationality.nationality_name,
                 religion.religion_name,
-                qualifications.qualification_name
+                qualifications.qualification_name,
+                user_cast.cast_name
             FROM 
                 profiles
             JOIN users ON profiles.user_id = users.id
             LEFT JOIN countries ON profiles.country_id = countries.id
             LEFT JOIN cities ON profiles.city_id = cities.id
+            LEFT JOIN states ON profiles.state_id = states.id
+            LEFT JOIN occupation ON profiles.occupation_id = occupation.id
             LEFT JOIN nationality ON profiles.nationality_id = nationality.id
             LEFT JOIN religion ON profiles.religion_id = religion.id
             LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
+            LEFT JOIN user_cast ON profiles.cast_id = user_cast.id
             WHERE users.id != $userId";
 
             $result = mysqli_query($conn, $query);
@@ -361,7 +366,7 @@ if (isset($_SESSION['user_id'])) {
                     // Display date of birth, city, and country
                     echo '<p class="card-text text-muted">';
                     echo isset($row['date_of_birth']) && !empty($row['date_of_birth'])
-                        ? htmlspecialchars((new DateTime())->diff(new DateTime($row['date_of_birth']))->y . " . " . $row['city_name'] . ", " . $row['country_name'])
+                        ? htmlspecialchars((new DateTime())->diff(new DateTime($row['date_of_birth']))->y . " . " . $row['city_name'] . "," . $row['state_name'] . ", " . $row['country_name'])
                         : 'No data available';
                     echo '</p>';
 

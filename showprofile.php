@@ -19,26 +19,32 @@ if (isset($_SESSION['user_id'])) {
 
     try {
         // Query to fetch user details with associated information
-        $query = "
-            SELECT 
+        $query =
+            "
+         SELECT 
                 profiles.*, 
                 countries.country_name, 
                 cities.city_name,
+                states.state_name,
+                occupation.occupation_name,
                 users.username,
                 users.email,
-                users.password,
                 nationality.nationality_name,
                 religion.religion_name,
-                qualifications.qualification_name
+                qualifications.qualification_name,
+                user_cast.cast_name
             FROM 
                 profiles
             JOIN users ON profiles.user_id = users.id
             LEFT JOIN countries ON profiles.country_id = countries.id
             LEFT JOIN cities ON profiles.city_id = cities.id
+            LEFT JOIN states ON profiles.state_id = states.id
+            LEFT JOIN occupation ON profiles.occupation_id = occupation.id
             LEFT JOIN nationality ON profiles.nationality_id = nationality.id
             LEFT JOIN religion ON profiles.religion_id = religion.id
             LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
-            WHERE profiles.user_id = ?;"; // Changed condition to fetch profile based on user_id
+            LEFT JOIN user_cast ON profiles.cast_id = user_cast.id
+            WHERE profiles.user_id = ?"; // Changed condition to fetch profile based on user_id
 
         // Prepare and execute the query
         $stmtUser = $conn->prepare($query);
@@ -187,7 +193,7 @@ if (isset($_SESSION['user_id'])) {
                                         </tr>
                                         <tr>
                                             <td class="text-muted mb-1">Occupation:</td>
-                                            <td class="text-muted mb-1">No Answer</td>
+                                            <td class="text-muted mb-1"><?php echo htmlspecialchars($profile['occupation_name'] ?? 'No Answer'); ?></td>
                                             <td class="text-muted mb-1">Any</td>
                                         </tr>
                                     </table>
@@ -232,8 +238,13 @@ if (isset($_SESSION['user_id'])) {
                                             </td>
                                         </tr>
                                         <tr>
+                                            <td class="w-25 text-muted text-start">Bio:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['bio']  ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
+                                        </tr>
+                                        <tr>
                                             <td class="w-25 text-muted text-start">Lives In:</td>
-                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['lives_in'] ?? 'No Answer'); ?></td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['city_name'] . "," . $profile['state_name'] . ", " . $profile['country_name'] ?? 'No Answer'); ?></td>
                                             <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
@@ -255,6 +266,11 @@ if (isset($_SESSION['user_id'])) {
                                         <tr>
                                             <td class="w-25 text-muted text-start">Height:</td>
                                             <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['height'] ?? 'No Answer'); ?></td>
+                                            <td class="w-25 text-muted text-start">No Answer</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="w-25 text-muted text-start">Weight:</td>
+                                            <td class="w-50 text-muted text-start"><?php echo htmlspecialchars($profile['weight'] ?? 'No Answer'); ?></td>
                                             <td class="w-25 text-muted text-start">No Answer</td>
                                         </tr>
                                         <tr>
