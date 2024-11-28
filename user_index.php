@@ -38,7 +38,7 @@ if (isset($_SESSION['user_id'])) {
             $countries[] = $row;
         }
 
-        // Fetch cities
+        // Fetch cities  
         $queryCities = "SELECT id, city_name FROM cities ORDER BY id ASC;";
         $stmtCities = $conn->prepare($queryCities);
         $stmtCities->execute();
@@ -58,6 +58,18 @@ if (isset($_SESSION['user_id'])) {
             $states[] = $row;
         }
 
+        // Fetch the is_complete value from the database for the logged-in user
+        $query = "SELECT is_complete FROM personality_profile WHERE created_by = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $userId);  // Use $userId instead of $user_id
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $is_complete = 0; // Default value if no profile exists
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $is_complete = (int)$row['is_complete']; // Ensure proper integer type for comparison
+        }
         // Commit transaction
         $conn->commit();
     } catch (Exception $e) {
@@ -134,7 +146,11 @@ if (isset($_SESSION['user_id'])) {
                 <h5 class="mt-4">
                     <?php echo $_SESSION['username']; ?>
                 </h5>
-                <a href="editPersonalityInfo.php?id=<?php echo urlencode($_SESSION['user_id']); ?>" class="btn btn-comp-prof">Next Step: Complete your personality profile</a>
+                <!-- Conditional display of the button based on is_complete -->
+                <?php if ($is_complete === 0): ?>
+                    <a href="editPersonalityInfo.php?id=<?php echo urlencode($userId); ?>" class="btn btn-comp-prof">Next Step: Complete your personality profile</a>
+                <?php endif; ?>
+
                 <p class="mt-2">Learn about membership features</p>
                 <div class=" emoji">
                     <i class="bi bi-hand-thumbs-up"></i>
@@ -148,7 +164,6 @@ if (isset($_SESSION['user_id'])) {
                 </div>
 
             </div>
-
             <div class="col-md-5 d-flex justify-content-between align-items-center prog-con">
                 <!-- Circular Progress Bars -->
                 <div class="progress-circle" data-percentage="75">

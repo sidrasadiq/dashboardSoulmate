@@ -56,6 +56,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
     $spend_weekend = $_POST['spend_weekend'];
     $perfect_match = $_POST['perfect_match'];
 
+    // Check if all fields are filled
+    $is_complete = (
+        !empty($favorite_movie) &&
+        !empty($favorite_book) &&
+        !empty($sort_of_music) &&
+        !empty($hobbies) &&
+        !empty($dress_sense) &&
+        !empty($sense_of_humor) &&
+        !empty($describe_personality) &&
+        !empty($like_to_travel) &&
+        !empty($partner_diff_culture) &&
+        !empty($spend_weekend) &&
+        !empty($perfect_match)
+    ) ? 1 : 0;
+
     // Check if the user already has a personality profile in the database
     $check_query = "SELECT id FROM personality_profile WHERE created_by = ?";
     $stmt = $conn->prepare($check_query);
@@ -70,10 +85,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
         $update_query = "UPDATE personality_profile 
                          SET favorite_movie = ?, favorite_book = ?, sort_of_music = ?, hobbies = ?, 
                              dress_sense = ?, sense_of_humor = ?, describe_personality = ?, like_to_travel = ?, 
-                             partner_diff_culture = ?, spend_weekend = ?, perfect_match = ?, updated_by = ?, updated_at = NOW() 
+                             partner_diff_culture = ?, spend_weekend = ?, perfect_match = ?, is_complete = ?, 
+                             updated_by = ?, updated_at = NOW() 
                          WHERE id = ? AND user_id = ?";
 
         $stmt = $conn->prepare($update_query);
+        $stmt->bind_param(
+            "sssssssssssiiii",
+            $favorite_movie,
+            $favorite_book,
+            $sort_of_music,
+            $hobbies,
+            $dress_sense,
+            $sense_of_humor,
+            $describe_personality,
+            $like_to_travel,
+            $partner_diff_culture,
+            $spend_weekend,
+            $perfect_match,
+            $is_complete,
+            $user_id,                  // updated_by
+            $existing_profile['id'],  // id of the profile
+            $user_id                   // user_id
+        );
+        $stmt->execute();
+
+        $_SESSION['message'] = "Personality Profile updated successfully!";
+    } else {
+        // If no profile exists, insert a new record
+        $insert_query = "INSERT INTO personality_profile (favorite_movie, favorite_book, sort_of_music, hobbies, 
+                         dress_sense, sense_of_humor, describe_personality, like_to_travel, partner_diff_culture, 
+                         spend_weekend, perfect_match, is_complete, created_by, user_id, created_at) 
+                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+
+        $stmt = $conn->prepare($insert_query);
         $stmt->bind_param(
             "sssssssssssiii",
             $favorite_movie,
@@ -87,34 +132,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
             $partner_diff_culture,
             $spend_weekend,
             $perfect_match,
-            $user_id,                  // updated_by
-            $existing_profile['id'],  // id of the profile
-            $user_id                   // user_id
-        );
-        $stmt->execute();
-
-        $_SESSION['message'] = "Personality Profile updated successfully!";
-    } else {
-        // If no profile exists, insert a new record
-        $insert_query = "INSERT INTO personality_profile (favorite_movie, favorite_book, sort_of_music, hobbies, 
-                         dress_sense, sense_of_humor, describe_personality, like_to_travel, partner_diff_culture, 
-                         spend_weekend, perfect_match, created_by, user_id, created_at) 
-                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())";
-
-        $stmt = $conn->prepare($insert_query);
-        $stmt->bind_param(
-            "ssssssssssssi",
-            $favorite_movie,
-            $favorite_book,
-            $sort_of_music,
-            $hobbies,
-            $dress_sense,
-            $sense_of_humor,
-            $describe_personality,
-            $like_to_travel,
-            $partner_diff_culture,
-            $spend_weekend,
-            $perfect_match,
+            $is_complete,
             $user_id,  // created_by
             $user_id   // user_id
         );
@@ -123,8 +141,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
         $_SESSION['message'] = "Personality Profile created successfully!";
     }
 
-    // Redirect back to the page to reload and display the updated/inserted data
-    header("Location: editPersonalityInfo.php");
+    // Redirect based on completeness
+    if ($is_complete) {
+        header("Location: user_index.php"); // Redirect if all fields are complete
+    } else {
+        header("Location: editPersonalityInfo.php"); // Redirect back to edit page if incomplete
+    }
     exit();
 }
 ?>
@@ -138,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST["submit"])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
-    <title> Personality Profile | Soulmate </title>
+    <title>Edit Profile | Soulmate </title>
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .container {
