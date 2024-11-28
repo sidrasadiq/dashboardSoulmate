@@ -5,90 +5,78 @@ include 'layouts/session.php';
 include 'layouts/main.php';
 include 'layouts/functions.php';
 
+// Check if the connection is established
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
+}
+
 // Initialize $profile
 $profile = [];
 
-// Check if user is logged in by ensuring session ID is set
-if (isset($_SESSION['user_id'])) {
-    $userId = $_SESSION['user_id']; // Use session ID for the logged-in user
+if (isset($_SESSION['user_id']) && isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $userId = (int)$_SESSION['user_id']; // Logged-in user's ID
+    $profileId = (int)$_GET['id'];       // Profile ID passed via URL
 
-    // Check if the connection is established
-    if (!$conn) {
-        die("Connection failed: " . mysqli_connect_error());
-    }
-
-    try {
-        // Query to fetch user details with associated information
-        $query =
-            "
-         SELECT 
-                profiles.*, 
-                countries.country_name, 
-                cities.city_name,
-                states.state_name,
-                occupation.occupation_name,
-                users.username,
-                users.email,
-                nationality.nationality_name,
-                religion.religion_name,
-                qualifications.qualification_name,
-                user_cast.cast_name
-            FROM 
-                profiles
-            JOIN users ON profiles.user_id = users.id
-            LEFT JOIN countries ON profiles.country_id = countries.id
-            LEFT JOIN cities ON profiles.city_id = cities.id
-            LEFT JOIN states ON profiles.state_id = states.id
-            LEFT JOIN occupation ON profiles.occupation_id = occupation.id
-            LEFT JOIN nationality ON profiles.nationality_id = nationality.id
-            LEFT JOIN religion ON profiles.religion_id = religion.id
-            LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
-            LEFT JOIN user_cast ON profiles.cast_id = user_cast.id
-            WHERE profiles.user_id = ?"; // Changed condition to fetch profile based on user_id
-
-        // Prepare and execute the query
-        $stmtUser = $conn->prepare($query);
-        if (!$stmtUser) {
-            die("Query preparation failed: " . $conn->error);
-        }
-
-        // Bind the user ID parameter
-        $stmtUser->bind_param('i', $userId);
-        $stmtUser->execute();
-        $resultUser = $stmtUser->get_result();
-
-        // Check if user data exists
-        if ($resultUser->num_rows > 0) {
-            $profile = $resultUser->fetch_assoc();
-        } else {
-            $_SESSION['message'] = ['type' => 'error', 'content' => 'Profile not found'];
-            header("Location: showprofile.php");
-            exit();
-        }
-
-        // Close the statement
-        $stmtUser->close();
-
-        $_SESSION['first_name'] = isset($profile['first_name']) ? $profile['first_name'] : 'No Set';
-        $_SESSION['last_name'] = isset($profile['last_name']) ? $profile['last_name'] : '';
-        $_SESSION['username'] = isset($profile['username']) ? $profile['username'] : '';
-        $_SESSION['profile_picture'] = isset($profile['profile_picture']) ? 'uploads/' . $profile['profile_picture'] : '';
-    } catch (Exception $e) {
-        // Handle exceptions and set the session message
-        $_SESSION['message'] = ['type' => 'error', 'content' => $e->getMessage()];
-        header("Location: showprofile.php");
-        exit();
+    // Check if the logged-in user is viewing their own profile
+    if ($userId === $profileId) {
+        // Fetch the logged-in user's profile
+        $queryCondition = "profiles.user_id = $userId";
+    } else {
+        // Fetch the specific profile from the URL
+        $queryCondition = "profiles.id = $profileId";
     }
 } else {
-    // If session ID is not set, redirect to login page or show an error
+    // Redirect to login page if no user is logged in or invalid 'id'
     $_SESSION['message'] = ['type' => 'error', 'content' => 'User not logged in'];
     header("Location: login.php");
     exit();
 }
+
+
+// Query to fetch profile data
+$query = "
+    SELECT 
+        profiles.*, 
+        countries.country_name, 
+        cities.city_name,
+        states.state_name,
+        occupation.occupation_name,
+        users.username,
+        users.email,
+        nationality.nationality_name,
+        religion.religion_name,
+        qualifications.qualification_name,
+        user_cast.cast_name
+    FROM 
+        profiles
+    JOIN users ON profiles.user_id = users.id
+    LEFT JOIN countries ON profiles.country_id = countries.id
+    LEFT JOIN cities ON profiles.city_id = cities.id
+    LEFT JOIN states ON profiles.state_id = states.id
+    LEFT JOIN occupation ON profiles.occupation_id = occupation.id
+    LEFT JOIN nationality ON profiles.nationality_id = nationality.id
+    LEFT JOIN religion ON profiles.religion_id = religion.id
+    LEFT JOIN qualifications ON profiles.qualification_id = qualifications.id
+    LEFT JOIN user_cast ON profiles.cast_id = user_cast.id
+    WHERE $queryCondition"; // Use the determined query condition
+
+// Execute the query
+$result = mysqli_query($conn, $query);
+
+if ($result && $result->num_rows > 0) {
+    // Fetch the profile data
+    $profile = $result->fetch_assoc();
+} else {
+    // Handle the case when no profile is found
+    echo 'No profile found for this user.';
+    if (isset($_SESSION['user_id'])) {
+        echo ' User ID from session: ' . $_SESSION['user_id'];
+    }
+    exit();
+}
+
+// Display the profile information
 ?>
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -132,14 +120,17 @@ if (isset($_SESSION['user_id'])) {
                         <div class="col-xl-4 col-lg-5">
                             <div class="card text-center border-0">
                                 <div class="card-body">
-                                    <img src="<?php echo $_SESSION['profile_picture']; ?>"
-                                        class="avatar-lg img-thumbnail custom-avatar"
-                                        alt="profile-image">
+                                    <?php if (!empty($profile['profile_picture'])): ?>
+                                        <img src="uploads/<?php echo htmlspecialchars($profile['profile_picture']); ?>" alt="Profile Picture" width="200" class="avatar-lg img-thumbnail custom-avatar"
+                                            alt="profile-image">
+                                    <?php else: ?>
+                                        <p>No profile picture available.</p>
+                                    <?php endif; ?>
+
                                     <!-- <img src="assets/images/profile.jpeg" class=" avatar-lg img-thumbnail" alt="profile-image"> -->
                                 </div> <!-- end card-body -->
                             </div> <!-- end card -->
                         </div> <!-- end col-->
-
                         <!-- second section start -->
                         <div class="col-xl-8 col-lg-7">
                             <div class="card">
@@ -149,7 +140,7 @@ if (isset($_SESSION['user_id'])) {
                                     <p class="text-muted"><?php echo htmlspecialchars($profile['qualification_name'] ?? 'N/A'); ?></p>
                                     <div class="text-start mt-3">
                                         <p class="text-muted mb-2"><strong>Location:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['city_name'] ?? 'Unknown') . ', ' . htmlspecialchars($profile['country_name'] ?? 'Unknown'); ?></span></p>
-                                        <p class="text-muted mb-1"><strong>Gender:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['gender'] ?? 'N/A'); ?> / <strong>ID: <?php echo htmlspecialchars($userId ?? 'Not Set'); ?></strong></span></p>
+                                        <p class="text-muted mb-1"><strong>Gender:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['gender'] ?? 'N/A'); ?> / <strong>ID: <?php echo htmlspecialchars($profileId ?? 'Not Set'); ?></strong></span></p>
                                         <p class="text-muted mb-1"><strong>Seeking:</strong> <span class="ms-2"><?php echo htmlspecialchars($profile['looking_for'] ?? 'No Answer') . '/' . htmlspecialchars($profile['prefer_age_from'] ?? '') . '-' . htmlspecialchars($profile['prefer_age_to'] ?? '') . ' For: ' . htmlspecialchars($profile['relationship_looking'] ?? ''); ?></span> </p>
                                         <p class="text-muted mb-1"><strong>Last Active:</strong> <span class="ms-2">0 min ago</span></p>
                                     </div>
@@ -255,7 +246,6 @@ if (isset($_SESSION['user_id'])) {
                                     </tbody>
                                 </table>
                             </div>
-
                             <!-- Appearance Section -->
                             <h5 class="customclr mt-4">Appearance</h5>
                             <div class="table-responsive">
@@ -291,7 +281,6 @@ if (isset($_SESSION['user_id'])) {
                                     </tbody>
                                 </table>
                             </div>
-
                             <!-- Lifestyle Section -->
                             <h5 class="customclr mt-4">Lifestyle</h5>
                             <div class="table-responsive">
@@ -360,9 +349,7 @@ if (isset($_SESSION['user_id'])) {
         <button type="button" class="btn  btn-pro">For more safety tips click here</button>
 
     </div>
-
     <?php include 'userlayout/footer.php'; ?>
-
 </body>
 
 </html>
